@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title|default:"Management Form" }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-8">
+    <div class="w-full max-w-xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+      <h2 class="text-3xl font-bold text-center text-indigo-700 border-b pb-4">
+        {{ title|default:"Data Entry" }}
+      </h2>
+
+      {% if explanation %}
+      <p class="text-sm text-gray-500 italic">{{ explanation }}</p>
+      {% endif %}
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %} {% for field in form %}
+        <div class="space-y-1">
+          <label
+            for="{{ field.id_for_label }}"
+            class="block text-sm font-medium text-gray-700"
+          >
+            {{ field.label }}
+          </label>
+          {{ field }} {% if field.help_text %}
+          <p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>
+          {% endif %} {% for error in field.errors %}
+          <p class="text-xs text-red-600">{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button
+          type="submit"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150"
+        >
+          Save
+        </button>
+      </form>
+      <a
+        href="{% url 'admin_academics_dashboard' %}"
+        class="block text-center text-sm text-gray-500 hover:text-indigo-600 mt-4"
+      >
+        ← Back to Academic Dashboard
+      </a>
+    </div>
+  </body>
+</html>

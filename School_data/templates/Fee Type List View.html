@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fee Types</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-2xl space-y-6">
+      <div class="flex justify-between items-center border-b pb-4">
+        <h1 class="text-3xl font-bold text-amber-700">
+          Defined Fee Categories
+        </h1>
+        <a
+          href="{% url 'fee_type_create' %}"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700"
+        >
+          + Create New Fee Type
+        </a>
+      </div>
+
+      {% if fee_types %}
+      <div class="space-y-4">
+        {% for fee_type in fee_types %}
+        <div
+          class="bg-amber-50 p-4 rounded-lg flex justify-between items-start border-l-4 border-amber-500"
+        >
+          <div>
+            <p class="text-xl font-semibold text-gray-900">
+              {{ fee_type.name }}
+            </p>
+            <p class="text-sm text-gray-600 mt-1 italic">
+              {{ fee_type.description|default:"No description provided." }}
+            </p>
+          </div>
+          <a
+            href="#"
+            class="text-sm font-medium text-amber-800 hover:text-amber-600"
+          >
+            View Structures
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div
+        class="text-center p-10 border-2 border-dashed border-gray-300 rounded-lg"
+      >
+        <p class="text-gray-500">
+          No fee types (categories) have been defined yet.
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="pt-4 border-t mt-6">
+        <a
+          href="{% url 'admin_academics_dashboard' %}"
+          class="text-sm text-amber-600 hover:text-amber-800"
+        >
+          ← Back to Academic Dashboard
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

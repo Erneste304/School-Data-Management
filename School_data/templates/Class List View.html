@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Class List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-2xl space-y-6">
+      <div class="flex justify-between items-center border-b pb-4">
+        <h1 class="text-3xl font-bold text-indigo-700">Academic Classes</h1>
+        <a
+          href="{% url 'class_create' %}"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+        >
+          + Add New Class
+        </a>
+      </div>
+
+      {% if classes %}
+      <div class="space-y-4">
+        {% for class_obj in classes %}
+        <div
+          class="bg-indigo-50 p-4 rounded-lg flex justify-between items-center border-l-4 border-indigo-500"
+        >
+          <div>
+            <p class="text-xl font-semibold text-gray-900">
+              {{ class_obj.name }}
+            </p>
+            <p class="text-sm text-gray-600 mt-1">
+              Class Tutor: {% if class_obj.class_tutor %} {{
+              class_obj.class_tutor.get_full_name|default:class_obj.class_tutor.username
+              }} {% else %}
+              <span class="text-red-500">Unassigned</span>
+              {% endif %}
+            </p>
+          </div>
+          <span
+            class="text-sm font-medium text-indigo-800 bg-indigo-200 px-3 py-1 rounded-full"
+          >
+            {{ class_obj.students.count }} Students
+          </span>
+          <!-- Future: Edit/Delete buttons -->
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div
+        class="text-center p-10 border-2 border-dashed border-gray-300 rounded-lg"
+      >
+        <p class="text-gray-500">
+          No classes have been created yet. Start by adding one!
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="pt-4 border-t mt-6">
+        <a
+          href="{% url 'admin_academics_dashboard' %}"
+          class="text-sm text-indigo-600 hover:text-indigo-800"
+        >
+          ← Back to Academic Dashboard
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
