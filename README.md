@@ -1,4 +1,5 @@
 # School Database Management System(SDMS)
+
 Built with Django (Python)
 
 This document outlines the architecture and core components of the SDMS, designed to manage all academic, administrative, and financial operations within a school environment.
