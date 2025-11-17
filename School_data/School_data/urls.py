@@ -16,12 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from users.views import DashboardHomeView, LoginView, LogoutView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Users.urls')),
-    path('finance/', include('Finance.urls')),
-    # Add Django's built-in auth URLs for password reset, etc.
-    # This will provide the 'password_reset' URL that the login template needs.
-    path('', include('django.contrib.auth.urls')),
-]
+    
+    # Base Auth Paths
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(next_page='/'), name='logout'), 
+    # Central Dashboard Router
+    path('dashboard/', DashboardHomeView.as_view(), name='dashboard_home'), 
+    
+    # App-Specific Routes (Included based on the main app structure)
+    path('api/', include('api.urls')), 
+    
+    # Specific Role Routes
+    path('dashboard/admin/', include('users.urls')), 
+    path('dashboard/academics/', include('academics.urls')), 
+    path('dashboard/finance/', include('finance.urls')), 
+]   

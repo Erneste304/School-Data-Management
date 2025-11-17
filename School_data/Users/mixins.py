@@ -26,9 +26,7 @@ class RoleRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
     
 class AdminOnlyMixin(RoleRequiredMixin):
-    # Use uppercase to match model choices
     allowed_roles = ['ADMIN']
 
 class TeacherOnlyMixin(RoleRequiredMixin):
-    # Use uppercase to match model choices
     allowed_roles = ['TEACHER']

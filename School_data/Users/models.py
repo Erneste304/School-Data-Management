@@ -19,11 +19,22 @@ class CustomUser(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default='STUDENT')
-
+# for teacher and accountant approval workflow
     invitation_token = models.UUIDField(default=uuid4, editable=False, unique=True)
+    is_approved = models.BooleanField(default=False)
+# for student
+    
+    student_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
+# for parent link to student
+    related_student = models.ForeignKey(
+        'academics.Student',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
-        return f"{self.user.username} - {self.get_role_display()}"
+        return f"{self.user.username} ({self.get_role_display()})"
     
     def get_role_display(self):
         return dict(ROLE_CHOICES).get(self.role, self.role)
