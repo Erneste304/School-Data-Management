@@ -3,6 +3,7 @@ from django.views import View
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
 
 # Create your views here.
 
@@ -54,7 +55,23 @@ class AdminDashboardView(LoginRequiredMixin, View):
 class HeadteacherDashboardView(LoginRequiredMixin, View):
     def get(self, request):
         # Full oversight: analytics, approvals, audit logs
-        return render(request, 'users/headteacher_dashboard.html', {'role': 'head'})
+        from Academics.models import Student
+        from Staff.models import StaffRecord
+        from Finance.models import Transaction
+        from Operations.models import AuditLog
+
+        context = {
+            'role': 'head',
+            'total_students': Student.objects.filter(is_active=True).count(),
+            'total_staff': StaffRecord.objects.filter(is_active=True).count(),
+            'pending_staff_count': StaffRecord.objects.filter(is_approved=False).count(),
+            'total_collections': Transaction.objects.filter(status='APPROVED').aggregate(total=Sum('amount_paid'))['total'] or 0,
+            'pending_approvals_count': Transaction.objects.filter(status='PENDING').count() + StaffRecord.objects.filter(is_approved=False).count(),
+            'recent_logs': AuditLog.objects.all().order_by('-timestamp')[:5],
+            'pending_transactions': Transaction.objects.filter(status='PENDING').order_by('-transaction_date')[:5],
+            'pending_staff': StaffRecord.objects.filter(is_approved=False).order_by('-hire_date')[:5],
+        }
+        return render(request, 'users/headteacher_dashboard.html', context)
 
 class DODDashboardView(LoginRequiredMixin, View):
     def get(self, request):

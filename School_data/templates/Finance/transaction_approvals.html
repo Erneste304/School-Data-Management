@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Approvals | SDMS Finance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-rose-50/30 min-h-screen">
+    <nav
+        class="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🏦</span>
+            <h1 class="text-xl font-bold text-gray-900">SDMS / <span class="text-rose-600">Finance Approvals</span></h1>
+        </div>
+        <a href="{% url 'headteacher_dashboard' %}"
+            class="text-sm font-bold text-gray-500 hover:text-rose-600 transition-all">← Back</a>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-8">
+        <header class="mb-8">
+            <h2 class="text-3xl font-extrabold text-gray-900">Financial Authorization</h2>
+            <p class="text-gray-500">Review and authorize pending payments or fund collections.</p>
+        </header>
+
+        <div class="space-y-4">
+            {% for trans in pending_transactions %}
+            <div
+                class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between transition-all hover:shadow-xl hover:shadow-rose-100/50">
+                <div class="flex items-center gap-6">
+                    <div
+                        class="w-16 h-16 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 font-bold text-2xl">
+                        {{ trans.transaction_type|first|upper }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-black uppercase tracking-widest text-rose-400">{{
+                                trans.get_transaction_type_display }}</span>
+                            <span class="text-xs text-gray-300">•</span>
+                            <span class="text-xs font-bold text-gray-400">{{ trans.transaction_date|date:"M d, H:i"
+                                }}</span>
+                        </div>
+                        <h4 class="font-black text-gray-900 text-xl">${{ trans.amount_paid }}</h4>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Recorded by <span class="font-bold text-gray-900">{{
+                                trans.recorded_by.get_full_name|default:trans.recorded_by.username }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="transaction_id" value="{{ trans.id }}">
+                        <button name="action" value="REJECT"
+                            class="px-6 py-2 rounded-xl text-sm font-bold text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all">Reject</button>
+                        <button name="action" value="APPROVE"
+                            class="px-8 py-3 rounded-2xl text-sm font-black bg-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-200 transform hover:-translate-y-1 transition-all">Authorize
+                            Payment</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-white p-12 rounded-3xl text-center space-y-4 border-2 border-dashed border-gray-100">
+                <span class="text-6xl text-gray-200">💎</span>
+                <h3 class="text-xl font-bold text-gray-400">All financial transactions are up to date!</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+
+</html>

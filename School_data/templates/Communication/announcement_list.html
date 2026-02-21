@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +43,7 @@
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -152,13 +153,27 @@
         }
 
         @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         footer {
@@ -194,6 +209,7 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <a href="/" class="logo">
@@ -206,40 +222,42 @@
 
     <section class="hero">
         <h1>School Notice Board</h1>
-        <p>Stay updated with the latest academic news, event notices, and institutional trends from the SDMS Public Information Portal.</p>
+        <p>Stay updated with the latest academic news, event notices, and institutional trends from the SDMS Public
+            Information Portal.</p>
     </section>
 
     <div class="container">
         {% if announcements %}
-            {% for announcement in announcements %}
-                <div class="announcement-card">
-                    <div class="announcement-header">
-                        <span>Posted by: {{ announcement.posted_by.get_full_name|default:announcement.posted_by.username }}</span>
-                        <span>{{ announcement.created_at|date:"M d, Y" }}</span>
-                    </div>
-                    <h2 class="announcement-title">{{ announcement.title }}</h2>
-                    <div class="announcement-content">
-                        {{ announcement.content|linebreaks }}
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-notices">
-                <h2>No public notices available at the moment.</h2>
-                <p>Please check back later for updates.</p>
+        {% for announcement in announcements %}
+        <div class="announcement-card">
+            <div class="announcement-header">
+                <span>Posted by: {{ announcement.posted_by.get_full_name|default:announcement.posted_by.username
+                    }}</span>
+                <span>{{ announcement.created_at|date:"M d, Y" }}</span>
             </div>
+            <h2 class="announcement-title">{{ announcement.title }}</h2>
+            <div class="announcement-content">
+                {{ announcement.content|linebreaks }}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="no-notices">
+            <h2>No public notices available at the moment.</h2>
+            <p>Please check back later for updates.</p>
+        </div>
         {% endif %}
     </div>
 
     <footer>
         <span class="footer-logo">🎓 SDMS</span>
         <div class="footer-links">
-            <a href="{% url 'login' %}">Student Portal</a>
-            <a href="{% url 'login' %}">Teacher Portal</a>
-            <a href="{% url 'login' %}">Parent Portal</a>
-            <a href="{% url 'login' %}">Finance</a>
+            <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+            <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+            <a href="{% url 'help_center' %}">Help Center</a>
         </div>
-        <p>&copy; 2026 School Database Management System. All rights reserved.</p>
+        <p>&copy; 2026 School Database Management System by Erneste304Tech. All rights reserved.</p>
     </footer>
 </body>
+
 </html>

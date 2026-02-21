@@ -35,7 +35,9 @@ urlpatterns = [
     path('dashboard/admin/', include('Users.urls')), 
     path('dashboard/academics/', include('Academics.urls')), 
     path('dashboard/finance/', include('Finance.urls')), 
+    path('dashboard/staff/', include('Staff.urls')), 
     
+    path('dashboard/operations/', include('Operations.urls')), 
     # Root Landing Page / Public Notices
     path('', include('Communication.urls')), 
 ]

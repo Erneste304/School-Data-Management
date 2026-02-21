@@ -52,6 +52,16 @@
             <a href="/" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">← Back to Public Site</a>
         </div>
     </div>
+
+    <footer class="absolute bottom-8 left-0 right-0 text-center">
+        <div class="flex justify-center gap-6 mb-2 text-[10px] font-bold text-gray-400">
+            <a href="{% url 'privacy_policy' %}" class="hover:text-indigo-600 transition-all">Privacy Policy</a>
+            <a href="{% url 'terms_of_service' %}" class="hover:text-indigo-600 transition-all">Terms of Service</a>
+            <a href="{% url 'help_center' %}" class="hover:text-indigo-600 transition-all">Help Center</a>
+        </div>
+        <p class="text-[10px] text-gray-400 font-semibold">&copy; 2026 School Database Management System by
+            Erneste304Tech. All rights reserved.</p>
+    </footer>
 </body>
 
 </html>

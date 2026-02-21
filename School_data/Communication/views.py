@@ -93,4 +93,23 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
         if obj.receiver == self.request.user and not obj.is_read:
             obj.is_read = True
             obj.save()
-        return obj
+from django.views.generic import ListView, CreateView, DetailView, TemplateView
+
+# ... (rest of the code)
+
+# --- Information Pages ---
+
+class PrivacyPolicyView(TemplateView):
+    template_name = 'communication/privacy_policy.html'
+
+class TermsOfServiceView(TemplateView):
+    template_name = 'communication/terms_of_service.html'
+
+class HelpCenterView(TemplateView):
+    template_name = 'communication/help_center.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['phone'] = "0790397904"
+        context['email'] = "erneste@gmail.com"
+        return context

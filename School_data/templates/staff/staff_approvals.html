@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Approvals | SDMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50 min-h-screen">
+    <nav
+        class="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🎓</span>
+            <h1 class="text-xl font-bold text-gray-900">SDMS / <span class="text-indigo-600">Staff Approvals</span></h1>
+        </div>
+        <a href="{% url 'headteacher_dashboard' %}"
+            class="text-sm font-bold text-gray-500 hover:text-indigo-600 transition-all">← Back to Dashboard</a>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-8">
+        <header class="mb-8">
+            <h2 class="text-3xl font-extrabold text-gray-900">Pending Onboarding Review</h2>
+            <p class="text-gray-500">Approve or reject staff records awaiting system activation.</p>
+        </header>
+
+        <div class="space-y-4">
+            {% for staff in pending_staff %}
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xl">
+                        {{ staff.user.username|first|upper }}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg">{{
+                            staff.user.get_full_name|default:staff.user.username }}</h4>
+                        <p class="text-sm text-gray-500">{{ staff.user.profile.get_role_display }} • Department: {{
+                            staff.department }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="staff_id" value="{{ staff.id }}">
+                        <button name="action" value="REJECT"
+                            class="px-6 py-2 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-all">Reject</button>
+                        <button name="action" value="APPROVE"
+                            class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-all">Approve
+                            Access</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-white p-12 rounded-3xl text-center space-y-4 border-2 border-dashed border-gray-100">
+                <span class="text-6xl text-gray-200">✨</span>
+                <h3 class="text-xl font-bold text-gray-400">All caught up! No pending staff approvals.</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+
+</html>

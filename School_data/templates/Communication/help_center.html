@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center | SDMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50/30 min-h-screen">
+    <nav
+        class="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-900">
+            <span>🎓</span> SDMS
+        </a>
+        <a href="/" class="text-sm font-bold text-indigo-600 hover:underline transition-all">← Back to Site</a>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-8 my-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-black text-gray-900 mb-4">How can we help?</h1>
+            <p class="text-gray-500 text-lg">Support and information for the School Database Management System.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div
+                    class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 text-2xl mb-6">
+                    📞</div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Call Support</h2>
+                <p class="text-gray-500 mb-4">Direct assistance for urgent technical issues.</p>
+                <p class="text-2xl font-black text-indigo-600">{{ phone }}</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div
+                    class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 text-2xl mb-6">
+                    ✉️</div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Email Us</h2>
+                <p class="text-gray-500 mb-4">For general inquiries and non-urgent support.</p>
+                <p class="text-xl font-black text-indigo-600">{{ email }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-12 rounded-3xl shadow-sm border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Frequently Asked Questions</h2>
+            <div class="space-y-8">
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2">How do I reset my portal password?</h3>
+                    <p class="text-gray-500">Please contact the school IT administrator or the Headteacher's office for
+                        a password reset request.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2">Can I view my child's grades from home?</h3>
+                    <p class="text-gray-500">Yes, the Parent Portal allows real-time access to student performance,
+                        attendance, and fee status.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2">What happens if I miss a fee payment?</h3>
+                    <p class="text-gray-500">The Finance office handles all billing issues. You can check your pending
+                        invoices in the portal and visit the Accountant for payment plans.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-12 text-gray-400 text-xs font-semibold">
+        &copy; 2026 School Database Management System by Erneste304Tech. All rights reserved.
+    </footer>
+</body>
+
+</html>
