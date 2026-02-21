@@ -27,6 +27,11 @@ class StaffApprovalListView(RoleRequiredMixin, ListView):
             staff.is_approved = True
             staff.save()
             
+            # Synchronize with Login Profile
+            profile = staff.user.profile
+            profile.is_approved = True
+            profile.save()
+            
             log_action(
                 user=request.user,
                 action='STAFF_APPROVAL',

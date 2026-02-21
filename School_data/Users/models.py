@@ -11,6 +11,9 @@ ROLE_CHOICES = [
     ('ACCOUNTANT', 'Accountant'),
     ('DOS', 'Dean of Study'),
     ('DOD', 'Director of Discipline'),
+    ('ANIMATEUR', 'Animateur'),
+    ('ANIMATRICE', 'Animatrice'),
+    ('POPULAR', 'Popular Staff'),
 ]
 
 LEVEL_CHOICES = [

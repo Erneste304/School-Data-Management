@@ -24,6 +24,75 @@ class LogoutView(View):
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
 
+    def form_valid(self, form):
+        user = form.get_user()
+        # Admin bypasses approval check
+        if user.is_superuser or user.profile.role == 'ADMIN':
+            return super().form_valid(form)
+            
+        if not user.profile.is_approved:
+            from django.contrib import messages
+            messages.error(self.request, "Your account is pending approval. Please contact the administrator.")
+            return redirect('login')
+        return super().form_valid(form)
+
+class StaffRegisterView(View):
+    def get(self, request):
+        return render(request, 'users/register.html')
+
+    def post(self, request):
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        role = request.POST.get('role')
+
+        from .models import CustomUser, Profile
+        from django.contrib import messages
+
+        if CustomUser.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return redirect('register')
+
+        user = CustomUser.objects.create_user(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=password
+        )
+        # Update profile (auto-created by signal in signals.py)
+        profile = user.profile
+        profile.role = role
+        profile.is_approved = False
+        profile.save()
+        
+        # Create StaffRecord for synchronization
+        from Staff.models import StaffRecord
+        from django.utils import timezone
+        StaffRecord.objects.create(
+            user=user,
+            hire_date=timezone.now().date(),
+            salary=0, # Placeholder, updated during formal onboarding
+            department="New Joiner",
+            is_approved=False
+        )
+        
+        # Log audit trail if module exists
+        try:
+            from Operations.models import AuditLog
+            AuditLog.objects.create(
+                user=user,
+                action="Registration",
+                module="Users",
+                description=f"New staff registration: {username} as {role}. Pending approval."
+            )
+        except: pass
+
+        messages.success(request, "Registration successful! Please wait for administrator approval.")
+        return redirect('login')
+
 class DashboardHomeView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
@@ -37,7 +106,7 @@ class DashboardHomeView(LoginRequiredMixin, View):
             return redirect('dod_dashboard')
         elif role == 'DOS':
             return redirect('dos_dashboard')
-        elif role == 'TEACHER':
+        elif role in ['TEACHER', 'ANIMATEUR', 'ANIMATRICE']:
             return redirect('teacher_dashboard')
         elif role == 'STUDENT':
             return redirect('student_dashboard')
@@ -85,18 +154,40 @@ class DOSDashboardView(LoginRequiredMixin, View):
     
 class TeacherDashboardView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, 'users/teacher_dashboard.html', {'role': 'teacher'})
+        return render(request, 'academics/teacher_portal.html', {'role': 'teacher'})
     
 
 class StudentDashboardView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, 'users/student_dashboard.html', {'role': 'student'})
+        return render(request, 'academics/student_portal.html', {'role': 'student'})
     
 
 class AccountantDashboardView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, 'users/accountant_dashboard.html', {'role': 'accountant'})
+        return render(request, 'finance/accountant_dashboard.html', {'role': 'accountant'})
     
 class ParentDashboardView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, 'users/parent_dashboard.html', {'role': 'parent'})
+        return render(request, 'academics/parent_portal.html', {'role': 'parent'})
+
+class ProfileDetailView(LoginRequiredMixin, View):
+    """
+    View for users to see and update their profile details.
+    """
+    def get(self, request):
+        return render(request, 'users/profile.html')
+
+    def post(self, request):
+        user = request.user
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+
+        if first_name: user.first_name = first_name
+        if last_name: user.last_name = last_name
+        if email: user.email = email
+        user.save()
+
+        from django.contrib import messages
+        messages.success(request, "Your profile has been updated successfully!")
+        return redirect('profile')

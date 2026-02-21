@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Registration | SDMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50/30 min-h-screen flex flex-col items-center justify-center p-6">
+    <div
+        class="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-indigo-50">
+        <div class="px-8 pt-10 pb-6 text-center">
+            <div
+                class="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg shadow-indigo-200">
+                🏫
+            </div>
+            <h1 class="text-2xl font-black text-gray-900">Join our Staff</h1>
+            <p class="text-gray-500 text-sm mt-1 font-semibold">Join the School Database Management System</p>
+        </div>
+
+        {% if messages %}
+        <div class="px-8 pb-4">
+            {% for message in messages %}
+            <div class="p-3 rounded-xl bg-red-50 text-red-700 border border-red-100 font-bold text-xs text-center">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="px-8 pb-10 space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">First
+                        Name</label>
+                    <input type="text" name="first_name" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-semibold text-gray-700 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Last
+                        Name</label>
+                    <input type="text" name="last_name" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-semibold text-gray-700 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label
+                    class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Username</label>
+                <input type="text" name="username" required
+                    class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-semibold text-gray-700 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Email
+                    Address</label>
+                <input type="email" name="email" required
+                    class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-semibold text-gray-700 text-sm font-sans">
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Select
+                    Role</label>
+                <select name="role" required
+                    class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-bold text-gray-700 text-sm appearance-none">
+                    <option value="TEACHER">Teacher</option>
+                    <option value="ANIMATEUR">Animateur</option>
+                    <option value="ANIMATRICE">Animatrice</option>
+                    <option value="ACCOUNTANT">Accountant</option>
+                    <option value="POPULAR">Popular Staff</option>
+                </select>
+            </div>
+
+            <div>
+                <label
+                    class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Password</label>
+                <input type="password" name="password" required
+                    class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-semibold text-gray-700 text-sm">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black hover:bg-indigo-700 shadow-xl shadow-indigo-100 transform hover:-translate-y-1 transition-all mt-4">
+                Apply for Registration
+            </button>
+
+            <p class="text-center text-xs font-bold text-gray-400 mt-6">
+                Already part of staff? <a href="{% url 'login' %}" class="text-indigo-600 hover:underline">Log In</a>
+            </p>
+        </form>
+    </div>
+
+    <footer class="mt-8 text-center">
+        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">&copy; 2026 Erneste304Tech. Empowering
+            Education.</p>
+    </footer>
+</body>
+
+</html>

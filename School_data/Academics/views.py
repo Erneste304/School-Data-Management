@@ -23,13 +23,27 @@ class AdminAcademicsDashboardView(RoleRequiredMixin, BasePortalView):
 # --- 2. Teacher Portal ---
 class TeacherPortalView(RoleRequiredMixin, BasePortalView):
     """Teacher's view for managing their subjects and students."""
-    allowed_roles = ['TEACHER']
+    allowed_roles = ['TEACHER', 'ANIMATEUR', 'ANIMATRICE']
     template_name = 'academics/teacher_portal.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Future: Fetch subjects taught by request.user
-        context['role_desc'] = 'Teacher'
+        from .models import Subject
+        
+        # Fetch subjects specifically assigned to this user
+        # This uses the related_name='subjects_taught' from the Subject model
+        context['taught_subjects'] = Subject.objects.filter(teacher=self.request.user)
+        
+        # Add quick actions intended for the teacher dashboard
+        # We point them to teacher_dashboard for now to avoid NoReverseMatch 
+        # until the specific detail views are implemented.
+        context['teacher_actions'] = [
+            {'name': 'Attendance', 'url_name': 'teacher_dashboard'}, 
+            {'name': 'Enrollments', 'url_name': 'teacher_dashboard'},
+            {'name': 'Grading', 'url_name': 'teacher_dashboard'},
+        ]
+        
+        context['role_desc'] = self.request.user.profile.get_role_display()
         return context
 
 # --- 3. Student Portal ---

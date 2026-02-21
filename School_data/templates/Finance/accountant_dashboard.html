@@ -21,8 +21,10 @@
             <h1 class="text-xl font-bold text-gray-900">SDMS / <span class="text-indigo-600">Accounts Portal</span></h1>
         </div>
         <div class="flex items-center gap-4">
-            <span class="text-sm font-semibold text-gray-500">Accountant: {{
-                request.user.get_full_name|default:request.user.username }}</span>
+            <span class="text-sm font-semibold text-gray-500">Accountant: {{ user.get_full_name|default:user.username
+                }}</span>
+            <a href="{% url 'profile' %}"
+                class="text-sm font-bold text-gray-400 hover:text-indigo-600 transition-all">My Profile</a>
             <a href="{% url 'logout' %}"
                 class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition-all">Logout</a>
         </div>
