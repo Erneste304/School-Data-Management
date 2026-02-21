@@ -16,23 +16,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from users.views import DashboardHomeView, LoginView, LogoutView
+from Users.views import DashboardHomeView, CustomLoginView, LogoutView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
     # Base Auth Paths
-    path('login/', LoginView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(next_page='/'), name='logout'), 
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'), 
     # Central Dashboard Router
     path('dashboard/', DashboardHomeView.as_view(), name='dashboard_home'), 
     
     # App-Specific Routes (Included based on the main app structure)
-    path('api/', include('api.urls')), 
+    # path('api/', include('api.urls')), 
     
     # Specific Role Routes
-    path('dashboard/admin/', include('users.urls')), 
-    path('dashboard/academics/', include('academics.urls')), 
-    path('dashboard/finance/', include('finance.urls')), 
-]   
+    path('dashboard/admin/', include('Users.urls')), 
+    path('dashboard/academics/', include('Academics.urls')), 
+    path('dashboard/finance/', include('Finance.urls')), 
+    
+    # Root Landing Page / Public Notices
+    path('', include('Communication.urls')), 
+]

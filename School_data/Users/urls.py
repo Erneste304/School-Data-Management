@@ -6,7 +6,10 @@ from .views import (
     TeacherDashboardView, 
     StudentDashboardView, 
     AccountantDashboardView, 
-    ParentDashboardView
+    ParentDashboardView,
+    DOSDashboardView,
+    HeadteacherDashboardView,
+    DODDashboardView
     )
 
 urlpatterns = [
@@ -16,6 +19,9 @@ urlpatterns = [
     path('student-portal/', StudentDashboardView.as_view(), name='student_dashboard'),
     path('accountant-portal/', AccountantDashboardView.as_view(), name='accountant_dashboard'),
     path('parent-portal/', ParentDashboardView.as_view(), name='parent_dashboard'),
+    path('head-portal/', HeadteacherDashboardView.as_view(), name='headteacher_dashboard'),
+    path('dod-portal/', DODDashboardView.as_view(), name='dod_dashboard'),
+    path('dos-portal/', DOSDashboardView.as_view(), name='dos_dashboard'),
     path('', DashboardHomeView.as_view(), name='dashboard_home'),
 
 ]

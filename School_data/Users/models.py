@@ -8,8 +8,16 @@ ROLE_CHOICES = [
     ('TEACHER', 'Teacher'),
     ('PARENT', 'Parent'),
     ('HEAD', 'Headmaster'),
-    ('ACCOUNTANT', 'Accountant')
-    ]
+    ('ACCOUNTANT', 'Accountant'),
+    ('DOS', 'Dean of Study'),
+    ('DOD', 'Director of Discipline'),
+]
+
+LEVEL_CHOICES = [
+    ('NURSERY', 'Nursery'),
+    ('PRIMARY', 'Primary'),
+    ('SECONDARY', 'Secondary'),
+]
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -19,6 +27,13 @@ class CustomUser(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default='STUDENT')
+    school_type = models.CharField(
+        max_length=15, 
+        choices=LEVEL_CHOICES, 
+        blank=True, 
+        null=True,
+        help_text="For teachers, select their primary level."
+    )
 # for teacher and accountant approval workflow
     invitation_token = models.UUIDField(default=uuid4, editable=False, unique=True)
     is_approved = models.BooleanField(default=False)
@@ -27,7 +42,7 @@ class Profile(models.Model):
     student_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
 # for parent link to student
     related_student = models.ForeignKey(
-        'academics.Student',
+        'Academics.Student',
         on_delete=models.SET_NULL,
         blank=True,
         null=True,

@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'Users.apps.UsersConfig',
     'Academics.apps.AcademicsConfig',
     'Communication.apps.CommunicationConfig', # This was missing
-    'Finance.apps.FinanceConfig',
+    'Finance.apps.FinancesConfig',
+    'Operations.apps.OperationsConfig',
+    'Staff.apps.StaffConfig',
 
 ]
 
@@ -83,8 +85,8 @@ WSGI_APPLICATION = 'School_data.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'school_db',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

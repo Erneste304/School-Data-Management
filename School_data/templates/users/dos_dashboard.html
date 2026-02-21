@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOS Dashboard | SDMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50/30 min-h-screen">
+    <nav class="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">📋</span>
+            <h1 class="text-xl font-bold text-gray-900">SDMS / <span class="text-indigo-600">Academic Portal</span></h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-sm font-semibold text-gray-500">DOS: {{
+                request.user.get_full_name|default:request.user.username }}</span>
+            <a href="{% url 'logout' %}"
+                class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition-all">Logout</a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-8 space-y-8">
+        <header class="flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-extrabold text-gray-900">Academic Operations</h2>
+                <p class="text-gray-500">Managing syllabus progress, marks, and teacher reports</p>
+            </div>
+            <div class="flex gap-4">
+                <button
+                    class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">Academic
+                    Calendar</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-indigo-50">
+                <span class="text-gray-400 text-sm font-bold uppercase">Pending Marksheets</span>
+                <h3 class="text-3xl font-black mt-1">45</h3>
+                <span class="text-orange-500 text-xs font-bold">Require review from Mid-Term</span>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-indigo-50">
+                <span class="text-gray-400 text-sm font-bold uppercase">Teacher Reports</span>
+                <h3 class="text-3xl font-black mt-1">8</h3>
+                <span class="text-indigo-500 text-xs font-bold">Submitted for this week</span>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-indigo-50">
+                <span class="text-gray-400 text-sm font-bold uppercase">Enrolment Requests</span>
+                <h3 class="text-3xl font-black mt-1">15</h3>
+                <span class="text-indigo-500 text-xs font-bold">Awaiting student ID generation</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">Subject Performance Analysis</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm font-bold mb-1">
+                            <span>Mathematics (Secondary)</span>
+                            <span class="text-green-600">82% Avg</span>
+                        </div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-green-500 h-full w-[82%]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm font-bold mb-1">
+                            <span>English Language (Primary)</span>
+                            <span class="text-indigo-600">76% Avg</span>
+                        </div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-indigo-500 h-full w-[76%]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm font-bold mb-1">
+                            <span>Science (Nursery)</span>
+                            <span class="text-indigo-400">90% Avg</span>
+                        </div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-indigo-400 h-full w-[90%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">Awaiting Approval</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 p-4 border border-gray-50 rounded-xl bg-gray-50/50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-sm">
+                            MT</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm">Marksheet: Biology Grade 11</h4>
+                            <p class="text-xs text-gray-500 font-semibold">Teacher: Mr. Thompson • 2 mins ago</p>
+                        </div>
+                        <button
+                            class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Review</button>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 border border-gray-50 rounded-xl bg-gray-50/50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-sm">
+                            RL</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm">Lesson Plan: Primary English</h4>
+                            <p class="text-xs text-gray-500 font-semibold">Teacher: Mrs. Lewis • 1 hour ago</p>
+                        </div>
+                        <button
+                            class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

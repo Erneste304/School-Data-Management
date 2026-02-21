@@ -1,7 +1,7 @@
 from django.db import models
-from django.db import models
-from users.models import CustomUser
-from academics.models import Student 
+import uuid
+from Users.models import CustomUser
+from Academics.models import Student
 
 class FeeStructure(models.Model):
 
@@ -44,11 +44,20 @@ class Transaction(models.Model):
         ('CARD', 'Credit/Debit Card'),
     )
 
+    APPROVAL_STATUS_CHOICES = (
+        ('PENDING', 'Pending Approval'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+
     invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=10, choices=METHOD_CHOICES)
     transaction_date = models.DateTimeField(auto_now_add=True)
-    recorded_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, limit_choices_to={'profile__role': 'ACCOUNTANT'})
+    recorded_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, limit_choices_to={'profile__role': 'ACCOUNTANT'}, related_name='recorded_transactions')
+    status = models.CharField(max_length=10, choices=APPROVAL_STATUS_CHOICES, default='PENDING')
+    approved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'profile__role': 'HEAD'}, related_name='approved_transactions')
+    approval_date = models.DateTimeField(null=True, blank=True)
 
     # We can use UUID4 here for the external reference ID from the bank/payment gateway
     external_reference = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, help_text="Unique ID for bank/external payment reference.")

@@ -1,30 +1,37 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.urls import reverse_lazy
 
-from users.mixins import RoleRequiredMixin
+from Users.mixins import RoleRequiredMixin
 from .models import Announcement, Message
 
 # --- Announcements ---
 
-class AnnouncementListView(LoginRequiredMixin, ListView):
+class AnnouncementListView(ListView):
     """
-    Allows any logged-in user (all roles) to see announcements relevant to them.
+    Allows any user (including unauthenticated) to see public announcements.
+    Authenticated users see more role-specific content.
     """
     model = Announcement
     template_name = 'communication/announcement_list.html'
     context_object_name = 'announcements'
     
     def get_queryset(self):
-        if not self.request.user.is_authenticated or not hasattr(self.request.user, 'profile'):
-            return Announcement.objects.none()
+        # Base query for active announcements
+        active_announcements = Announcement.objects.filter(is_active=True)
+        
+        if not self.request.user.is_authenticated:
+            # Strictly global notices for guests
+            return active_announcements.filter(scope='GLOBAL').order_by('-created_at')
+
+        # If user is authenticated but has no profile (e.g. superuser without profile)
+        if not hasattr(self.request.user, 'profile'):
+            return active_announcements.filter(scope='GLOBAL').order_by('-created_at')
 
         user = self.request.user
         role = user.profile.role
-        
-        # Base query for active announcements
-        active_announcements = Announcement.objects.filter(is_active=True)
         
         # Build a query with all relevant scopes for the user
         # Announcements can be GLOBAL or targeted at the user's specific ROLE

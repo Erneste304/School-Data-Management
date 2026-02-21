@@ -1,6 +1,6 @@
 from django import forms
 from .models import Class, Subject, Student, Enrollment
-from users.models import CustomUser
+from Users.models import CustomUser
 
 class ClassForm(forms.ModelForm):
     """Form for creating and editing academic classes."""

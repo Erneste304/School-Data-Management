@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from users.models import CustomUser
+from Users.models import CustomUser, LEVEL_CHOICES
 
 class Class(models.Model):
     """Represents an academic class, e.g., 'Grade 10A'."""
@@ -12,6 +12,7 @@ class Class(models.Model):
         blank=True,
         related_name='tutored_class'
     )
+    level = models.CharField(max_length=15, choices=LEVEL_CHOICES, default='PRIMARY')
 
     class Meta:
         verbose_name_plural = "Classes"
@@ -32,6 +33,16 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} ({self.student_id})"
+
+    def calculate_gpa(self):
+        """
+        Calculates the average score across all exam results for the student.
+        """
+        results = ExamResult.objects.filter(enrollment__student=self)
+        if not results.exists():
+            return 0.0
+        total_score = sum(r.score for r in results)
+        return round(float(total_score / results.count()), 2)
 
 
 class Subject(models.Model):
@@ -77,6 +88,8 @@ class Attendance(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     date = models.DateField()
     status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent'), ('Excused', 'Excused')])
+    is_late = models.BooleanField(default=False)
+    lateness_minutes = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = ('enrollment', 'date')
@@ -97,6 +110,7 @@ class ExamResult(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     score = models.DecimalField(max_digits=5, decimal_places=2)
+    grade = models.CharField(max_length=2, blank=True, help_text="e.g. A, B+, C")
 
     class Meta:
         unique_together = ('enrollment', 'exam')
@@ -109,6 +123,8 @@ class TeacherProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     hire_date = models.DateField()
     subjects = models.ManyToManyField(Subject, related_name='teachers')
+    # For multiple levels support as per plan
+    levels = models.CharField(max_length=100, blank=True, help_text="e.g. NURSERY,PRIMARY")
 
     def __str__(self):
         return f"{self.user.get_full_name()}'s Profile"

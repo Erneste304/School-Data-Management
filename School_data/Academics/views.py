@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from users.mixins import RoleRequiredMixin
-from users.models import ROLES 
+from Users.mixins import RoleRequiredMixin
 
 # --- Shared Base Mixins ---
 class BasePortalView(LoginRequiredMixin, TemplateView):
