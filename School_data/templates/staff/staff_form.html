@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - Rutabo SMS{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem;">{{ title }}</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem;">User Details</h3>
+            {{ user_form.as_p }}
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem;">Profile Details</h3>
+            {{ profile_form.as_p }}
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <a href="{% url 'staff:staff_list' %}" class="btn" style="background: #f1f5f9; color: #475569;">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Save Staff Member</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

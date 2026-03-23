@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Staff Management - Rutabo SMS{% endblock %}
+{% block page_title %}Staff Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 600;">All Staff Members</h2>
+        <a href="{% url 'staff:staff_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Staff
+        </a>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--bg-body); color: var(--text-muted); text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <th style="padding: 1rem; border-bottom: 1px solid #e2e8f0; border-radius: 8px 0 0 8px;">Name</th>
+                    <th style="padding: 1rem; border-bottom: 1px solid #e2e8f0;">Role</th>
+                    <th style="padding: 1rem; border-bottom: 1px solid #e2e8f0;">Email</th>
+                    <th style="padding: 1rem; border-bottom: 1px solid #e2e8f0;">Status</th>
+                    <th style="padding: 1rem; border-bottom: 1px solid #e2e8f0; border-radius: 0 8px 8px 0; text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in staff_members %}
+                <tr>
+                    <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; font-weight: 500;">
+                        {{ staff.get_full_name|default:staff.username }}
+                    </td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">
+                        <span style="background: #e0e7ff; color: #4338ca; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;">
+                            {{ staff.get_role_display }}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; color: var(--text-muted);">
+                        {{ staff.email }}
+                    </td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">
+                        {% if staff.is_active %}
+                            <span style="color: #16a34a; font-size: 0.85rem; font-weight: 500;"><i class="fas fa-check-circle"></i> Active</span>
+                        {% else %}
+                            <span style="color: #dc2626; font-size: 0.85rem; font-weight: 500;"><i class="fas fa-times-circle"></i> Disabled</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; text-align: right;">
+                        <form method="POST" action="{% url 'staff:staff_toggle' staff.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            {% if staff.is_active %}
+                                <button type="submit" class="btn" style="background: #fee2e2; color: #dc2626; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Disable</button>
+                            {% else %}
+                                <button type="submit" class="btn" style="background: #dcfce3; color: #16a34a; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Enable</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                        No staff members found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

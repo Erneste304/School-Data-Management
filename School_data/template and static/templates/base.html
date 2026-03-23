@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Rutabo Secondary School{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- ── Top navbar ── -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-name">Rutabo Secondary School</span>
+    </div>
+    <div class="navbar-right">
+      {% if user.is_authenticated %}
+        <span class="nav-role badge badge-{{ user.role }}">{{ user.get_role_display }}</span>
+        <span class="nav-user">{{ user.get_full_name|default:user.username }}</span>
+        <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline">Logout</a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-primary">Login</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="layout">
+
+    <!-- ── Sidebar (only for authenticated users) ── -->
+    {% if user.is_authenticated %}
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+
+        <a href="{% url 'dashboard:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+          Dashboard
+        </a>
+
+        {% if user.role in 'admin,head_teacher,dos' %}
+        <div class="nav-section">Academic</div>
+        <a href="{% url 'academics:marks' %}" class="nav-item">Marks</a>
+        <a href="{% url 'academics:reports' %}" class="nav-item">Reports</a>
+        <a href="{% url 'academics:subjects' %}" class="nav-item">Subjects</a>
+        <a href="{% url 'academics:timetable' %}" class="nav-item">Timetable</a>
+        {% endif %}
+
+        {% if user.role in 'admin,head_teacher,dod' %}
+        <div class="nav-section">Discipline</div>
+        <a href="#" class="nav-item">Discipline cases</a>
+        {% endif %}
+
+        {% if user.role in 'admin,head_teacher' %}
+        <div class="nav-section">Management</div>
+        <a href="{% url 'schools:levels' %}" class="nav-item">School levels</a>
+        <a href="{% url 'schools:classes' %}" class="nav-item">Classes</a>
+        <a href="{% url 'accounts:staff_list' %}" class="nav-item">Staff</a>
+        {% endif %}
+
+        {% if user.role in 'admin,accountant' %}
+        <div class="nav-section">Finance</div>
+        <a href="#" class="nav-item">Fees</a>
+        <a href="#" class="nav-item">Payments</a>
+        {% endif %}
+
+        {% if user.role in 'admin,head_teacher,animateur,animatrice' %}
+        <div class="nav-section">Activities</div>
+        <a href="#" class="nav-item">Events</a>
+        <a href="#" class="nav-item">Live stream</a>
+        {% endif %}
+
+        <div class="nav-section">Communication</div>
+        <a href="#" class="nav-item">Chat</a>
+
+        {% if user.role == 'admin' %}
+        <div class="nav-section">Admin</div>
+        <a href="{% url 'audit:log' %}" class="nav-item">Audit log</a>
+        <a href="/admin/" class="nav-item">Django admin</a>
+        {% endif %}
+
+      </nav>
+    </aside>
+    {% endif %}
+
+    <!-- ── Main content ── -->
+    <main class="main-content">
+
+      <!-- Flash messages -->
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+  </div><!-- /.layout -->
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
