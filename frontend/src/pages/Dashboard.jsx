@@ -13,6 +13,12 @@ import { StudentDashboard, TeacherDashboard, ParentDashboard, AdminDashboard } f
 import StudentManagement from '../components/StudentManagement'
 import AttendanceTracking from '../components/AttendanceTracking'
 import ScheduleView from '../components/ScheduleView'
+import GradesManagement from '../components/GradesManagement'
+import AssignmentsPortal from '../components/AssignmentsPortal'
+import FinanceDashboard from '../components/FinanceDashboard'
+import StaffManagement from '../components/StaffManagement'
+import DisciplineManager from '../components/DisciplineManager'
+import AuditLogViewer from '../components/AuditLogViewer'
 
 const NAV_ITEMS = {
   admin: [
@@ -149,6 +155,13 @@ export default function Dashboard() {
             <Route path="students" element={<StudentManagement />} />
             <Route path="attendance" element={<AttendanceTracking />} />
             <Route path="schedule" element={<ScheduleView />} />
+            <Route path="grades" element={<GradesManagement />} />
+            <Route path="assignments" element={<AssignmentsPortal />} />
+            <Route path="finance" element={<FinanceDashboard />} />
+            <Route path="fees" element={<FinanceDashboard />} />
+            <Route path="staff" element={<StaffManagement />} />
+            <Route path="discipline" element={<DisciplineManager />} />
+            <Route path="audit" element={<AuditLogViewer />} />
             <Route path="*" element={<ComingSoon />} />
           </Routes>
         </main>

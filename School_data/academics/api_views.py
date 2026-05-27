@@ -82,6 +82,22 @@ class GradeViewSet(viewsets.ModelViewSet):
     serializer_class = GradeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        student_id = self.request.query_params.get('student_id')
+        class_id = self.request.query_params.get('class_id')
+        
+        user = self.request.user
+        if user.role == 'student':
+            qs = qs.filter(enrollment__student__user=user)
+        elif student_id:
+            qs = qs.filter(enrollment__student__user_id=student_id)
+            
+        if class_id:
+            qs = qs.filter(enrollment__enrolled_class_id=class_id)
+            
+        return qs
+
 
 class AttendanceViewSet(viewsets.ModelViewSet):
     queryset = Attendance.objects.select_related('enrollment__student__user').all()
@@ -121,6 +137,13 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        subject_id = self.request.query_params.get('subject_id')
+        if subject_id:
+            qs = qs.filter(subject_id=subject_id)
+        return qs
+
 
 class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     queryset = AssignmentSubmission.objects.select_related(
@@ -128,6 +151,24 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     ).all()
     serializer_class = AssignmentSubmissionSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        assignment_id = self.request.query_params.get('assignment_id')
+        enrollment_id = self.request.query_params.get('enrollment_id')
+        student_id = self.request.query_params.get('student_id')
+        
+        user = self.request.user
+        if user.role == 'student':
+            qs = qs.filter(enrollment__student__user=user)
+        elif student_id:
+            qs = qs.filter(enrollment__student__user_id=student_id)
+            
+        if assignment_id:
+            qs = qs.filter(assignment_id=assignment_id)
+        if enrollment_id:
+            qs = qs.filter(enrollment_id=enrollment_id)
+        return qs
 
 
 class AcademicTermViewSet(viewsets.ModelViewSet):

@@ -20,6 +20,9 @@ urlpatterns = [
     path('api/accounts/', include('accounts.api_urls', namespace='accounts_api')),
     path('api/schools/', include('schools.api_urls', namespace='schools_api')),
     path('api/academics/', include('academics.api_urls', namespace='academics_api')),
+    path('api/finance/', include('finance.api_urls', namespace='finance_api')),
+    path('api/discipline/', include('discipline.api_urls', namespace='discipline_api')),
+    path('api/audit/', include('audit.api_urls', namespace='audit_api')),
     path('', RedirectView.as_view(url='/accounts/login/'), name='home_root'),
 ]
 
