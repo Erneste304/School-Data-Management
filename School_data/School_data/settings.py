@@ -31,6 +31,9 @@ INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
     'chat.apps.ChatConfig',
     'livestream.apps.LivestreamConfig',
+    'notifications.apps.NotificationsConfig',
+    'documents.apps.DocumentsConfig',
+    'alumni.apps.AlumniConfig',
 ]
 
 MIDDLEWARE = [

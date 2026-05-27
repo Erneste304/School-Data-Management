@@ -24,6 +24,9 @@ urlpatterns = [
     path('api/discipline/', include('discipline.api_urls', namespace='discipline_api')),
     path('api/audit/', include('audit.api_urls', namespace='audit_api')),
     path('api/activities/', include('activities.api_urls', namespace='activities_api')),
+    path('api/notifications/', include('notifications.api_urls', namespace='notifications_api')),
+    path('api/documents/', include('documents.api_urls', namespace='documents_api')),
+    path('api/alumni/', include('alumni.api_urls', namespace='alumni_api')),
     path('', RedirectView.as_view(url='/accounts/login/'), name='home_root'),
 ]
 
