@@ -34,6 +34,8 @@ const LoginPage = () => {
             if (response.ok) {
                 // Store user info in localStorage or context
                 localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('auth', 'true');
+                localStorage.setItem('userRole', data.user.role);
                 navigate('/dashboard');
             } else {
                 setError(data.detail || 'Login failed. Please check your credentials.');

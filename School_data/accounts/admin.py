@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, StaffProfile
+from .models import CustomUser, StaffProfile, ParentProfile, ParentStudentRelationship
 
 
 class StaffProfileInline(admin.StackedInline):
@@ -37,3 +37,23 @@ class CustomUserAdmin(UserAdmin):
 class StaffProfileAdmin(admin.ModelAdmin):
     list_display  = ['user', 'employee_id', 'department', 'date_joined']
     search_fields = ['user__first_name', 'user__last_name', 'employee_id']
+
+
+class ParentProfileInline(admin.StackedInline):
+    model = ParentProfile
+    extra = 0
+    can_delete = False
+
+
+@admin.register(ParentProfile)
+class ParentProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'occupation', 'workplace', 'get_children_count']
+    search_fields = ['user__first_name', 'user__last_name', 'occupation']
+    readonly_fields = ['get_children_count']
+
+
+@admin.register(ParentStudentRelationship)
+class ParentStudentRelationshipAdmin(admin.ModelAdmin):
+    list_display = ['parent', 'student', 'relationship_type', 'is_primary_guardian']
+    list_filter = ['relationship_type', 'is_primary_guardian']
+    search_fields = ['parent__user__first_name', 'student__user__first_name']

@@ -1,302 +1,236 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './HomePage.css';
+import { Link } from 'react-router-dom'
+import { useLanguage } from '../contexts/LanguageContext'
+import { 
+  GraduationCap, 
+  Users, 
+  Calendar, 
+  BookOpen, 
+  MessageSquare, 
+  BarChart3,
+  Globe,
+  Shield,
+  Smartphone,
+  Zap,
+  Languages
+} from 'lucide-react'
 
-const HomePage = () => {
-  const navigate = useNavigate();
-  const [announcements, setAnnouncements] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem('access_token');
-    const role = localStorage.getItem('user_role');
-    
-    if (token && role) {
-      setIsLoggedIn(true);
-      setUserRole(role);
-    }
-    
-    // Fetch announcements
-    fetchAnnouncements();
-  }, []);
-
-  const fetchAnnouncements = async () => {
-    try {
-      const response = await fetch('/api/announcements/published/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setAnnouncements(data.slice(0, 3)); // Show only 3 latest
-      }
-    } catch (error) {
-      console.error('Error fetching announcements:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNavigateToDashboard = () => {
-    navigate('/dashboard');
-  };
-
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleVisitorAccess = () => {
-    navigate('/dashboard?visitor=true');
-  };
+function HomePage() {
+  const { language, changeLanguage, t } = useLanguage()
 
   return (
-    <div className="home-page">
-      {/* Navigation Bar */}
-      <nav className="navbar">
-        <div className="container">
-          <div className="navbar-brand">
-            <h1 className="school-name">School Data Management System</h1>
-            <p className="tagline">Excellence in Education Management</p>
-          </div>
-          <div className="navbar-actions">
-            {isLoggedIn ? (
-              <>
-                <Link to="/dashboard" className="btn btn-primary">Dashboard</Link>
-                <button className="btn btn-secondary" onClick={() => {
-                  localStorage.clear();
-                  window.location.href = '/';
-                }}>Logout</button>
-              </>
-            ) : (
-              <>
-                <button className="btn btn-primary" onClick={handleLoginClick}>Login</button>
-                <button className="btn btn-outline" onClick={handleVisitorAccess}>Visitor Access</button>
-              </>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Header */}
+      <header className="bg-white shadow-md">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <GraduationCap className="w-10 h-10 text-blue-600" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">{t('appName')}</h1>
+                <p className="text-sm text-gray-600">{t('tagline')}</p>
+              </div>
+            </div>
+            <nav className="flex items-center space-x-4">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">{t('home')}</Link>
+              <Link to="/login" className="text-gray-700 hover:text-blue-600 font-medium">{t('login')}</Link>
+              <Link 
+                to="/register" 
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+              >
+                {t('register')}
+              </Link>
+              <div className="relative group">
+                <button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                  <Languages className="w-5 h-5" />
+                  <span className="uppercase">{language}</span>
+                </button>
+                <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <button
+                    onClick={() => changeLanguage('en')}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => changeLanguage('fr')}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Français
+                  </button>
+                  <button
+                    onClick={() => changeLanguage('rw')}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Kinyarwanda
+                  </button>
+                </div>
+              </div>
+            </nav>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1>Welcome to Our School</h1>
-          <p>Empowering education through intelligent data management</p>
-          {!isLoggedIn && (
-            <div className="hero-buttons">
-              <button className="btn btn-large btn-primary" onClick={handleLoginClick}>
-                Get Started
-              </button>
-              <button className="btn btn-large btn-outline" onClick={handleVisitorAccess}>
-                Learn More
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="hero-image">
-          <div className="placeholder-image">
-            📚 School Logo
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Stats */}
-      <section className="stats-section">
-        <div className="container">
-          <h2>Our System at a Glance</h2>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon">👥</div>
-              <h3>Student Management</h3>
-              <p>Comprehensive tracking of student data, profiles, and progress</p>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">📊</div>
-              <h3>Academic Records</h3>
-              <p>Grades, attendance, and performance analysis</p>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">💰</div>
-              <h3>Finance Module</h3>
-              <p>Manage fees, transactions, and financial reports</p>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">📋</div>
-              <h3>Discipline Tracking</h3>
-              <p>Record and manage student discipline cases</p>
-            </div>
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-4xl mx-auto">
+          <h2 className="text-5xl font-bold text-gray-800 mb-6">
+            {t('heroTitle')}
+          </h2>
+          <p className="text-xl text-gray-600 mb-8">
+            {t('heroDescription')}
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Link 
+              to="/login" 
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300 text-lg font-semibold"
+            >
+              {t('loginToAccount')}
+            </Link>
+            <Link 
+              to="/register" 
+              className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg hover:bg-blue-50 transition duration-300 text-lg font-semibold"
+            >
+              {t('createAccount')}
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="features-section">
-        <div className="container">
-          <h2>Key Features</h2>
-          <div className="features-grid">
-            <div className="feature-card">
-              <h3>Multi-Role Dashboard</h3>
-              <p>Customized dashboards for Admin, Teachers, Students, Parents, and more. Each role gets relevant information and tools.</p>
-              <ul>
-                <li>✓ Admin - System oversight</li>
-                <li>✓ Teachers - Class management</li>
-                <li>✓ Students - Academic tracking</li>
-                <li>✓ Parents - Child progress</li>
-              </ul>
-            </div>
+      <section className="container mx-auto px-4 py-16">
+        <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          {t('featuresTitle')}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <FeatureCard
+            icon={<Users className="w-8 h-8" />}
+            title={t('multiRoleSupport')}
+            description={t('multiRoleDesc')}
+          />
+          <FeatureCard
+            icon={<BookOpen className="w-8 h-8" />}
+            title={t('academicManagement')}
+            description={t('academicDesc')}
+          />
+          <FeatureCard
+            icon={<Calendar className="w-8 h-8" />}
+            title={t('timetableEvents')}
+            description={t('timetableDesc')}
+          />
+          <FeatureCard
+            icon={<MessageSquare className="w-8 h-8" />}
+            title={t('communicationHub')}
+            description={t('communicationDesc')}
+          />
+          <FeatureCard
+            icon={<BarChart3 className="w-8 h-8" />}
+            title={t('analyticsReports')}
+            description={t('analyticsDesc')}
+          />
+          <FeatureCard
+            icon={<Shield className="w-8 h-8" />}
+            title={t('secureCompliant')}
+            description={t('secureDesc')}
+          />
+        </div>
+      </section>
 
-            <div className="feature-card">
-              <h3>Student Management</h3>
-              <p>Complete student profiles organized by age group and educational stage.</p>
-              <ul>
-                <li>✓ Age-based grouping (0-5, 6-10, 11-16, 17-25+)</li>
-                <li>✓ Educational stages (Nursery, Primary, Secondary, TVET)</li>
-                <li>✓ Guardian information</li>
-                <li>✓ Emergency contacts</li>
-              </ul>
-            </div>
-
-            <div className="feature-card">
-              <h3>Academic Excellence</h3>
-              <p>Track grades, attendance, and student performance with ease.</p>
-              <ul>
-                <li>✓ Grade management</li>
-                <li>✓ Attendance tracking</li>
-                <li>✓ Performance analytics</li>
-                <li>✓ Progress reports</li>
-              </ul>
-            </div>
-
-            <div className="feature-card">
-              <h3>Announcements & Reports</h3>
-              <p>Secretary module for official communications and documentation.</p>
-              <ul>
-                <li>✓ System announcements</li>
-                <li>✓ Academic reports</li>
-                <li>✓ Analysis & insights</li>
-                <li>✓ Newsletters</li>
-              </ul>
-            </div>
-
-            <div className="feature-card">
-              <h3>Financial Management</h3>
-              <p>Complete fee management and financial tracking system.</p>
-              <ul>
-                <li>✓ Fee structures</li>
-                <li>✓ Payment tracking</li>
-                <li>✓ Financial reports</li>
-                <li>✓ Budget management</li>
-              </ul>
-            </div>
-
-            <div className="feature-card">
-              <h3>Discipline Management</h3>
-              <p>Professional discipline case handling and student welfare tracking.</p>
-              <ul>
-                <li>✓ Case reporting</li>
-                <li>✓ Investigation tracking</li>
-                <li>✓ Welfare monitoring</li>
-                <li>✓ Behavior records</li>
-              </ul>
-            </div>
+      {/* Innovative Features */}
+      <section className="bg-blue-600 text-white py-16">
+        <div className="container mx-auto px-4">
+          <h3 className="text-3xl font-bold text-center mb-12">
+            {t('whyChooseUs')}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <InnovativeFeature icon={<Globe />} text={t('multiLanguage')} />
+            <InnovativeFeature icon={<Smartphone />} text={t('mobileFriendly')} />
+            <InnovativeFeature icon={<BarChart3 />} text={t('smartAnalytics')} />
+            <InnovativeFeature icon={<Zap />} text={t('instantNotifications')} />
+            <InnovativeFeature icon={<Shield />} text={t('gdprReady')} />
+            <InnovativeFeature icon={<Users />} text={t('parentAlumni')} />
           </div>
         </div>
       </section>
 
-      {/* Announcements Section */}
-      {!loading && announcements.length > 0 && (
-        <section className="announcements-section">
-          <div className="container">
-            <h2>Latest Announcements</h2>
-            <div className="announcements-grid">
-              {announcements.map((announcement) => (
-                <div key={announcement.id} className="announcement-card">
-                  {announcement.featured_image && (
-                    <img src={announcement.featured_image} alt={announcement.title} className="announcement-image" />
-                  )}
-                  <h3>{announcement.title}</h3>
-                  <p className="announcement-summary">{announcement.summary || announcement.content.substring(0, 150)}...</p>
-                  <div className="announcement-meta">
-                    <span className={`priority ${announcement.priority}`}>
-                      {announcement.priority.toUpperCase()}
-                    </span>
-                    <span className="date">{new Date(announcement.published_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {isLoggedIn && (
-              <div className="view-all">
-                <Link to="/announcements" className="btn btn-outline">View All Announcements</Link>
-              </div>
-            )}
+      {/* Call to Action */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-12">
+          <h3 className="text-3xl font-bold text-gray-800 mb-4">
+            {t('ctaTitle')}
+          </h3>
+          <p className="text-gray-600 mb-8">
+            {t('ctaDescription')}
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Link 
+              to="/register" 
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300 text-lg font-semibold"
+            >
+              {t('getStarted')}
+            </Link>
+            <Link 
+              to="/login" 
+              className="bg-gray-200 text-gray-800 px-8 py-3 rounded-lg hover:bg-gray-300 transition duration-300 text-lg font-semibold"
+            >
+              {t('login')}
+            </Link>
           </div>
-        </section>
-      )}
-
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="container">
-          <h2>Ready to Get Started?</h2>
-          <p>Join our system to manage school operations efficiently</p>
-          {!isLoggedIn ? (
-            <div className="cta-buttons">
-              <button className="btn btn-large btn-primary" onClick={handleLoginClick}>
-                Login to Your Account
-              </button>
-              <button className="btn btn-large btn-outline" onClick={handleVisitorAccess}>
-                Browse as Visitor
-              </button>
-            </div>
-          ) : (
-            <button className="btn btn-large btn-primary" onClick={handleNavigateToDashboard}>
-              Go to Dashboard
-            </button>
-          )}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-section">
-              <h4>About Us</h4>
-              <p>School Data Management System - Excellence in Education</p>
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <GraduationCap className="w-8 h-8" />
+                <h4 className="text-xl font-bold">{t('appName')}</h4>
+              </div>
+              <p className="text-gray-400">
+                {t('footerDescription')}
+              </p>
             </div>
-            <div className="footer-section">
-              <h4>Quick Links</h4>
-              <ul>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#announcements">Announcements</a></li>
-                <li><a href="#contact">Contact</a></li>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">{t('quickLinks')}</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link to="/" className="hover:text-white">{t('home')}</Link></li>
+                <li><Link to="/login" className="hover:text-white">{t('login')}</Link></li>
+                <li><Link to="/register" className="hover:text-white">{t('register')}</Link></li>
               </ul>
             </div>
-            <div className="footer-section">
-              <h4>Contact</h4>
-              <p>Email: info@school.edu</p>
-              <p>Phone: +1-234-567-8900</p>
-            </div>
-            <div className="footer-section">
-              <h4>Follow Us</h4>
-              <div className="social-links">
-                <a href="#facebook">Facebook</a>
-                <a href="#twitter">Twitter</a>
-                <a href="#instagram">Instagram</a>
-              </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">{t('contactSupport')}</h4>
+              <p className="text-gray-400 mb-2">{t('needHelp')}</p>
+              <p className="text-gray-400">support@schooldata.com</p>
             </div>
           </div>
-          <div className="footer-bottom">
-            <p>&copy; 2024 School Data Management System. All rights reserved.</p>
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>{t('copyright')}</p>
           </div>
         </div>
       </footer>
     </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+function FeatureCard({ icon, title, description }) {
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition duration-300">
+      <div className="text-blue-600 mb-4">{icon}</div>
+      <h4 className="text-xl font-semibold text-gray-800 mb-2">{title}</h4>
+      <p className="text-gray-600">{description}</p>
+    </div>
+  )
+}
+
+function InnovativeFeature({ icon, text }) {
+  return (
+    <div className="flex items-center space-x-3">
+      <div className="bg-white/20 p-2 rounded-lg">{icon}</div>
+      <p className="font-medium">{text}</p>
+    </div>
+  )
+}
+
+export default HomePage

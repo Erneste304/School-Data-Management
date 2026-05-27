@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 
 def get_model_fields_dict(instance):
@@ -8,7 +8,7 @@ def get_model_fields_dict(instance):
 
     for field in instance._meta.fields:
         value = getattr(instance, field.name)
-        if isinstance(value, (date, datetime)):
+        if isinstance(value, (date, datetime, time)):
             value = value.isoformat()
         elif isinstance(value, Decimal):
             value = float(value)

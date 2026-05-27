@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import Avg, Count, Q
 from accounts.models import CustomUser
 from schools.models import LEVEL_CHOICES
 
@@ -20,6 +21,24 @@ class Class(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_class_average(self):
+        """Calculate average GPA for all students in the class."""
+        students = self.students.filter(is_active=True)
+        if not students.exists():
+            return 0.0
+        total_gpa = sum(student.calculate_gpa() for student in students)
+        return round(total_gpa / students.count(), 2)
+
+    def get_attendance_rate(self):
+        """Calculate overall attendance rate for the class."""
+        enrollments = Enrollment.objects.filter(enrolled_class=self)
+        if not enrollments.exists():
+            return 0.0
+        total_attendance = 0
+        for enrollment in enrollments:
+            total_attendance += enrollment.student.get_attendance_rate()
+        return round(total_attendance / enrollments.count(), 2)
 
 
 class Student(models.Model):
@@ -44,6 +63,65 @@ class Student(models.Model):
             return 0.0
         total_score = sum(r.score for r in results)
         return round(float(total_score / results.count()), 2)
+
+    def get_attendance_rate(self):
+        """
+        Calculates attendance percentage for the student.
+        """
+        total_records = Attendance.objects.filter(enrollment__student=self).count()
+        if total_records == 0:
+            return 0.0
+        present_records = Attendance.objects.filter(
+            enrollment__student=self,
+            status='Present'
+        ).count()
+        return round((present_records / total_records) * 100, 2)
+
+    def get_grade_distribution(self):
+        """
+        Returns distribution of grades across all subjects.
+        """
+        results = ExamResult.objects.filter(enrollment__student=self)
+        grade_counts = {}
+        for result in results:
+            grade = result.grade or 'N/A'
+            grade_counts[grade] = grade_counts.get(grade, 0) + 1
+        return grade_counts
+
+    def get_subject_performance(self):
+        """
+        Returns performance breakdown by subject.
+        """
+        results = ExamResult.objects.filter(enrollment__student=self).select_related('exam__subject')
+        subject_performance = {}
+        for result in results:
+            subject = result.exam.subject.name
+            if subject not in subject_performance:
+                subject_performance[subject] = {
+                    'scores': [],
+                    'average': 0,
+                    'count': 0
+                }
+            subject_performance[subject]['scores'].append(float(result.score))
+            subject_performance[subject]['count'] += 1
+
+        for subject in subject_performance:
+            scores = subject_performance[subject]['scores']
+            subject_performance[subject]['average'] = round(sum(scores) / len(scores), 2) if scores else 0
+
+        return subject_performance
+
+    def get_pending_assignments(self):
+        """
+        Returns count of pending assignments.
+        """
+        current_enrollment = Enrollment.objects.filter(student=self, academic_year='2024-2025').first()
+        if not current_enrollment:
+            return 0
+        return AssignmentSubmission.objects.filter(
+            enrollment=current_enrollment,
+            grade__isnull=True
+        ).count()
 
 
 class Subject(models.Model):
@@ -178,6 +256,9 @@ class ClassSchedule(models.Model):
     ])
     start_time = models.TimeField()
     end_time = models.TimeField()
+    room = models.CharField(max_length=50, blank=True, help_text="Room number or location")
+    term = models.ForeignKey(AcademicTerm, on_delete=models.SET_NULL, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('class_assigned', 'subject', 'day_of_week', 'start_time')
@@ -185,6 +266,13 @@ class ClassSchedule(models.Model):
 
     def __str__(self):
         return f"{self.class_assigned} - {self.subject} on {self.day_of_week} from {self.start_time} to {self.end_time}"
+
+    def get_duration(self):
+        """Calculate duration of the class in minutes."""
+        from datetime import datetime, time
+        start = datetime.combine(datetime.today(), self.start_time)
+        end = datetime.combine(datetime.today(), self.end_time)
+        return int((end - start).total_seconds() / 60)
     
 class Curriculum(models.Model):
     name = models.CharField(max_length=100)

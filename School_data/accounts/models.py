@@ -107,3 +107,56 @@ class StaffProfile(models.Model):
             next_id = (last.id + 1) if last else 1
             self.employee_id = f"RSS{next_id:04d}"
         super().save(*args, **kwargs)
+
+
+class ParentProfile(models.Model):
+    """Profile for parents to link them to their children"""
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='parent_profile')
+    occupation = models.CharField(max_length=100, blank=True)
+    workplace = models.CharField(max_length=200, blank=True)
+    emergency_contact = models.CharField(max_length=20, blank=True)
+    relationship_to_student = models.CharField(max_length=50, default='Parent/Guardian')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Parent Profile — {self.user.get_full_name()}"
+
+    def get_children(self):
+        """Get all students linked to this parent"""
+        return self.children.all()
+
+    def get_children_count(self):
+        """Get count of children linked to this parent"""
+        return self.children.count()
+
+
+class ParentStudentRelationship(models.Model):
+    """Relationship between parent and student"""
+    parent = models.ForeignKey(ParentProfile, on_delete=models.CASCADE, related_name='children')
+    student = models.ForeignKey('academics.Student', on_delete=models.CASCADE, related_name='parents')
+    is_primary_guardian = models.BooleanField(default=False)
+    can_view_grades = models.BooleanField(default=True)
+    can_view_attendance = models.BooleanField(default=True)
+    can_view_discipline = models.BooleanField(default=True)
+    can_view_fees = models.BooleanField(default=True)
+    relationship_type = models.CharField(
+        max_length=50,
+        choices=[
+            ('Father', 'Father'),
+            ('Mother', 'Mother'),
+            ('Guardian', 'Guardian'),
+            ('Step-parent', 'Step-parent'),
+            ('Other', 'Other'),
+        ],
+        default='Guardian'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('parent', 'student')
+        verbose_name_plural = "Parent-Student Relationships"
+
+    def __str__(self):
+        return f"{self.parent.user.get_full_name()} - {self.student.user.get_full_name()}"

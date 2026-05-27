@@ -7,59 +7,75 @@ import {
 import {
   HiHome, HiUsers, HiAcademicCap, HiCurrencyDollar,
   HiClipboardList, HiChat, HiVideoCamera, HiShieldCheck,
-  HiCalendar, HiLogout
+  HiCalendar, HiLogout, HiBookOpen, HiChartBar
 } from 'react-icons/hi'
+import { StudentDashboard, TeacherDashboard, ParentDashboard, AdminDashboard } from '../components/RoleBasedDashboard'
+import StudentManagement from '../components/StudentManagement'
+import AttendanceTracking from '../components/AttendanceTracking'
+import ScheduleView from '../components/ScheduleView'
 
-const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
-  { to: '/dashboard/students', label: 'Students', icon: HiAcademicCap },
-  { to: '/dashboard/staff', label: 'Staff', icon: HiUsers },
-  { to: '/dashboard/finance', label: 'Finance', icon: HiCurrencyDollar },
-  { to: '/dashboard/discipline', label: 'Discipline', icon: HiClipboardList },
-  { to: '/dashboard/activities', label: 'Activities', icon: HiCalendar },
-  { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
-  { to: '/dashboard/livestream', label: 'Live Stream', icon: HiVideoCamera },
-  { to: '/dashboard/audit', label: 'Audit Logs', icon: HiShieldCheck },
-]
-
-function StatCard({ title, value, color, icon: Icon }) {
-  return (
-    <div className={`rounded-2xl p-5 bg-gradient-to-br ${color} shadow-lg flex items-center gap-4`}>
-      <div className="p-3 rounded-xl bg-white/20">
-        <Icon className="text-white w-6 h-6" />
-      </div>
-      <div>
-        <p className="text-white/70 text-sm">{title}</p>
-        <p className="text-white text-2xl font-bold">{value}</p>
-      </div>
-    </div>
-  )
-}
-
-function Overview() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Good morning 👋</h2>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome back to Rutabo School Management</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="Total Students" value="1,240" color="from-blue-500 to-blue-700" icon={HiAcademicCap} />
-        <StatCard title="Staff Members" value="87" color="from-emerald-500 to-emerald-700" icon={HiUsers} />
-        <StatCard title="Fees Collected" value="RWF 4.2M" color="from-violet-500 to-violet-700" icon={HiCurrencyDollar} />
-        <StatCard title="Open Cases" value="12" color="from-rose-500 to-rose-700" icon={HiClipboardList} />
-      </div>
-    </div>
-  )
+const NAV_ITEMS = {
+  admin: [
+    { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
+    { to: '/dashboard/students', label: 'Students', icon: HiAcademicCap },
+    { to: '/dashboard/staff', label: 'Staff', icon: HiUsers },
+    { to: '/dashboard/finance', label: 'Finance', icon: HiCurrencyDollar },
+    { to: '/dashboard/discipline', label: 'Discipline', icon: HiClipboardList },
+    { to: '/dashboard/activities', label: 'Activities', icon: HiCalendar },
+    { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+    { to: '/dashboard/livestream', label: 'Live Stream', icon: HiVideoCamera },
+    { to: '/dashboard/audit', label: 'Audit Logs', icon: HiShieldCheck },
+  ],
+  teacher: [
+    { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
+    { to: '/dashboard/classes', label: 'My Classes', icon: HiAcademicCap },
+    { to: '/dashboard/assignments', label: 'Assignments', icon: HiBookOpen },
+    { to: '/dashboard/grades', label: 'Grades', icon: HiChartBar },
+    { to: '/dashboard/attendance', label: 'Attendance', icon: HiClipboardList },
+    { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+  ],
+  student: [
+    { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
+    { to: '/dashboard/schedule', label: 'Schedule', icon: HiCalendar },
+    { to: '/dashboard/grades', label: 'Grades', icon: HiChartBar },
+    { to: '/dashboard/assignments', label: 'Assignments', icon: HiBookOpen },
+    { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+  ],
+  parent: [
+    { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
+    { to: '/dashboard/children', label: 'My Children', icon: HiAcademicCap },
+    { to: '/dashboard/grades', label: 'Grades', icon: HiChartBar },
+    { to: '/dashboard/fees', label: 'Fees', icon: HiCurrencyDollar },
+    { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+  ],
 }
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const navigate = useNavigate()
+  
+  // Get user role from localStorage (in production, this would come from API)
+  const userRole = localStorage.getItem('userRole') || 'admin'
+  const navItems = NAV_ITEMS[userRole] || NAV_ITEMS.admin
 
   function handleLogout() {
     localStorage.removeItem('auth')
+    localStorage.removeItem('userRole')
     navigate('/login')
+  }
+
+  function getDashboardComponent() {
+    switch (userRole) {
+      case 'student':
+        return <StudentDashboard />
+      case 'teacher':
+        return <TeacherDashboard />
+      case 'parent':
+        return <ParentDashboard />
+      case 'admin':
+      default:
+        return <AdminDashboard />
+    }
   }
 
   return (
@@ -84,7 +100,7 @@ export default function Dashboard() {
           </div>
           <Sidebar.Items>
             <Sidebar.ItemGroup>
-              {NAV_ITEMS.map(({ to, label, icon: Icon, exact }) => (
+              {navItems.map(({ to, label, icon: Icon, exact }) => (
                 <NavLink key={to} to={to} end={exact}>
                   {({ isActive }) => (
                     <Sidebar.Item
@@ -113,11 +129,11 @@ export default function Dashboard() {
             <Dropdown
               arrowIcon={false}
               inline
-              label={<Avatar placeholderInitials="HT" rounded size="sm" />}
+              label={<Avatar placeholderInitials={userRole.charAt(0).toUpperCase()} rounded size="sm" />}
             >
               <Dropdown.Header>
-                <span className="block text-sm font-semibold">Head Teacher</span>
-                <span className="block text-xs text-gray-500">headteacher@rutabo.rw</span>
+                <span className="block text-sm font-semibold capitalize">{userRole}</span>
+                <span className="block text-xs text-gray-500">{userRole}@rutabo.rw</span>
               </Dropdown.Header>
               <Dropdown.Item icon={HiLogout} onClick={handleLogout}>
                 Sign out
@@ -129,15 +145,11 @@ export default function Dashboard() {
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6">
           <Routes>
-            <Route index element={<Overview />} />
-            <Route path="students" element={<ComingSoon title="Students" />} />
-            <Route path="staff" element={<ComingSoon title="Staff" />} />
-            <Route path="finance" element={<ComingSoon title="Finance" />} />
-            <Route path="discipline" element={<ComingSoon title="Discipline" />} />
-            <Route path="activities" element={<ComingSoon title="Activities" />} />
-            <Route path="chat" element={<ComingSoon title="Chat" />} />
-            <Route path="livestream" element={<ComingSoon title="Live Stream" />} />
-            <Route path="audit" element={<ComingSoon title="Audit Logs" />} />
+            <Route index element={getDashboardComponent()} />
+            <Route path="students" element={<StudentManagement />} />
+            <Route path="attendance" element={<AttendanceTracking />} />
+            <Route path="schedule" element={<ScheduleView />} />
+            <Route path="*" element={<ComingSoon />} />
           </Routes>
         </main>
       </div>
@@ -145,11 +157,11 @@ export default function Dashboard() {
   )
 }
 
-function ComingSoon({ title }) {
+function ComingSoon() {
   return (
     <div className="flex flex-col items-center justify-center h-64 text-center">
       <div className="text-5xl mb-4">🚧</div>
-      <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300">{title}</h3>
+      <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Under Development</h3>
       <p className="text-gray-500 text-sm mt-1">This module is being connected to the API</p>
       <Badge color="indigo" className="mt-3">Coming Soon</Badge>
     </div>
