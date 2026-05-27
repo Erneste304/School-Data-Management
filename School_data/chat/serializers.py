@@ -25,5 +25,5 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         model = ChatRoom
         fields = ['id', 'name', 'room_type', 'slug', 'description', 'members_count']
         
-    def get_members_count(self):
-        return self.members.count()
+    def get_members_count(self, obj):
+        return obj.members.count()

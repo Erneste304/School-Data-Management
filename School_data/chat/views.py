@@ -110,3 +110,53 @@ def search_messages(request):
     serializer = MessageSerializer(messages, many=True)
     
     return Response(serializer.data)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def rooms_list_api(request):
+    if request.method == 'GET':
+        rooms = ChatRoom.objects.filter(is_active=True)
+        if request.user.role != 'admin':
+            rooms = rooms.filter(Q(room_type='public') | Q(members=request.user))
+        from .serializers import ChatRoomSerializer
+        serializer = ChatRoomSerializer(rooms, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        name = request.data.get('name')
+        description = request.data.get('description', '')
+        room_type = request.data.get('room_type', 'group')
+        if not name:
+            return Response({'detail': 'Room name is required.'}, status=400)
+        from django.utils.text import slugify
+        import random
+        slug = f"{slugify(name)}-{random.randint(1000, 9999)}"
+        room = ChatRoom.objects.create(
+            name=name,
+            description=description,
+            room_type=room_type,
+            slug=slug,
+            created_by=request.user
+        )
+        room.members.add(request.user)
+        from .serializers import ChatRoomSerializer
+        return Response(ChatRoomSerializer(room).data, status=201)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_message_api(request, slug):
+    room = get_object_or_404(ChatRoom, slug=slug)
+    content = request.data.get('content')
+    if not content:
+        return Response({'detail': 'Message content cannot be empty.'}, status=400)
+    message = Message.objects.create(
+        room=room,
+        sender=request.user,
+        content=content,
+        message_type='text'
+    )
+    if not room.members.filter(id=request.user.id).exists():
+        room.members.add(request.user)
+    return Response(MessageSerializer(message).data, status=201)
+
