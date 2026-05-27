@@ -97,3 +97,19 @@ def user_list(request):
         users = users.filter(role=role)
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def parent_children(request):
+    """Return all students linked to the current parent user."""
+    if request.user.role != 'parent':
+        return Response({'detail': 'Only parents can access this endpoint.'}, status=403)
+    
+    from accounts.models import ParentStudentRelationship
+    from academics.serializers import StudentSerializer
+    
+    relationships = ParentStudentRelationship.objects.filter(parent__user=request.user)
+    students = [rel.student for rel in relationships]
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)

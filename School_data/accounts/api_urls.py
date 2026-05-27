@@ -1,5 +1,5 @@
 from django.urls import path
-from .api_views import APILoginView, APILogoutView, RegisterView, current_user, user_list
+from .api_views import APILoginView, APILogoutView, RegisterView, current_user, user_list, parent_children
 
 app_name = 'accounts_api'
 
@@ -9,4 +9,5 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='api_register'),
     path('me/', current_user, name='current_user'),
     path('users/', user_list, name='user_list'),
+    path('children/', parent_children, name='parent_children'),
 ]

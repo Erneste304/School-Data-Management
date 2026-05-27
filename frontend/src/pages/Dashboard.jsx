@@ -20,6 +20,8 @@ import StaffManagement from '../components/StaffManagement'
 import DisciplineManager from '../components/DisciplineManager'
 import AuditLogViewer from '../components/AuditLogViewer'
 import ActivitiesCalendar from '../components/ActivitiesCalendar'
+import MyClassesDashboard from '../components/MyClassesDashboard'
+import MyChildrenDashboard from '../components/MyChildrenDashboard'
 
 const NAV_ITEMS = {
   admin: [
@@ -164,6 +166,8 @@ export default function Dashboard() {
             <Route path="discipline" element={<DisciplineManager />} />
             <Route path="audit" element={<AuditLogViewer />} />
             <Route path="activities" element={<ActivitiesCalendar />} />
+            <Route path="classes" element={<MyClassesDashboard />} />
+            <Route path="children" element={<MyChildrenDashboard />} />
             <Route path="*" element={<ComingSoon />} />
           </Routes>
         </main>
