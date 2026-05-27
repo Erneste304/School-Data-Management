@@ -23,6 +23,7 @@ import ActivitiesCalendar from '../components/ActivitiesCalendar'
 import MyClassesDashboard from '../components/MyClassesDashboard'
 import MyChildrenDashboard from '../components/MyChildrenDashboard'
 import ChatDashboard from '../components/ChatDashboard'
+import LivestreamPortal from '../components/LivestreamPortal'
 
 const NAV_ITEMS = {
   admin: [
@@ -170,6 +171,7 @@ export default function Dashboard() {
             <Route path="classes" element={<MyClassesDashboard />} />
             <Route path="children" element={<MyChildrenDashboard />} />
             <Route path="chat" element={<ChatDashboard />} />
+            <Route path="livestream" element={<LivestreamPortal />} />
             <Route path="*" element={<ComingSoon />} />
           </Routes>
         </main>

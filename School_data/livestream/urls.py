@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:pk>/', views.live_stream_view, name='watch'),
     path('manage/', views.manage_streams_view, name='manage'),
     path('create/', views.create_stream_view, name='create'),
+    path('api/list/', views.streams_list_api, name='api_list'),
 ]
