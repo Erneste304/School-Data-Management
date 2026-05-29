@@ -29,32 +29,28 @@ export function StudentDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-        const headers = {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        };
+        const opts = { credentials: 'include' };
 
-        const profRes = await fetch('/api/academics/my-profile/', { headers });
+        const profRes = await fetch('/api/academics/my-profile/', opts);
         if (profRes.ok) {
           const profData = await profRes.json();
           setProfile(profData);
         }
 
-        const schedRes = await fetch('/api/academics/my-schedule/', { headers });
+        const schedRes = await fetch('/api/academics/my-schedule/', opts);
         if (schedRes.ok) {
           const schedData = await schedRes.json();
           setSchedule(schedData);
         }
 
-        const gradesRes = await fetch('/api/academics/grades/', { headers });
+        const gradesRes = await fetch('/api/academics/grades/', opts);
         if (gradesRes.ok) {
           const gradesData = await gradesRes.json();
           setGrades(gradesData);
         }
 
-        const assignRes = await fetch('/api/academics/assignments/', { headers });
-        const subRes = await fetch('/api/academics/submissions/', { headers });
+        const assignRes = await fetch('/api/academics/assignments/', opts);
+        const subRes = await fetch('/api/academics/submissions/', opts);
         if (assignRes.ok && subRes.ok) {
           const assignData = await assignRes.json();
           const subData = await subRes.json();
@@ -157,23 +153,21 @@ export function TeacherDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const headers = {
-          'Content-Type': 'application/json',
-        };
+        const opts = { credentials: 'include' };
 
-        const profRes = await fetch('/api/academics/my-profile/', { headers });
+        const profRes = await fetch('/api/academics/my-profile/', opts);
         if (profRes.ok) {
           const profData = await profRes.json();
           setProfile(profData);
         }
 
-        const schedRes = await fetch('/api/academics/my-schedule/', { headers });
+        const schedRes = await fetch('/api/academics/my-schedule/', opts);
         if (schedRes.ok) {
           const schedData = await schedRes.json();
           setSchedule(schedData);
         }
 
-        const statsRes = await fetch('/api/academics/dashboard-stats/', { headers });
+        const statsRes = await fetch('/api/academics/dashboard-stats/', opts);
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats(statsData);
@@ -287,7 +281,7 @@ export function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/academics/dashboard-stats/');
+        const response = await fetch('/api/academics/dashboard-stats/', { credentials: 'include' });
         if (response.ok) {
           const data = await response.json();
           setStats(data);
