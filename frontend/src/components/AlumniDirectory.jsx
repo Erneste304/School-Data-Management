@@ -7,7 +7,7 @@ export default function AlumniDirectory() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('directory'); // directory, events, jobs
+    const [activeTab, setActiveTab] = useState('directory'); 
     const [filterMentor, setFilterMentor] = useState(false);
 
     useEffect(() => {

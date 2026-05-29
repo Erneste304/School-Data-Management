@@ -22,6 +22,8 @@ function StatCard({ title, value, color, icon: Icon }) {
 export function StudentDashboard() {
   const [profile, setProfile] = useState(null)
   const [schedule, setSchedule] = useState([])
+  const [grades, setGrades] = useState([])
+  const [assignmentsCount, setAssignmentsCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -43,6 +45,22 @@ export function StudentDashboard() {
         if (schedRes.ok) {
           const schedData = await schedRes.json();
           setSchedule(schedData);
+        }
+
+        const gradesRes = await fetch('/api/academics/grades/', { headers });
+        if (gradesRes.ok) {
+          const gradesData = await gradesRes.json();
+          setGrades(gradesData);
+        }
+
+        const assignRes = await fetch('/api/academics/assignments/', { headers });
+        const subRes = await fetch('/api/academics/submissions/', { headers });
+        if (assignRes.ok && subRes.ok) {
+          const assignData = await assignRes.json();
+          const subData = await subRes.json();
+          const submittedIds = new Set(subData.map(s => s.assignment));
+          const pending = assignData.filter(a => !submittedIds.has(a.id)).length;
+          setAssignmentsCount(pending);
         }
       } catch (error) {
         console.error('Error fetching student dashboard data:', error);
@@ -71,9 +89,9 @@ export function StudentDashboard() {
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="GPA" value={sInfo.gpa !== undefined ? sInfo.gpa : 'N/A'} color="from-blue-500 to-blue-700" icon={HiAcademicCap} />
-        <StatCard title="Attendance" value={sInfo.attendance_rate !== undefined ? `${sInfo.attendance_rate}%` : 'N/A'} color="from-emerald-500 to-emerald-700" icon={HiClipboardList} />
-        <StatCard title="Assignments" value="Pending" color="from-violet-500 to-violet-700" icon={HiBookOpen} />
+        <StatCard title="GPA" value={sInfo.gpa !== undefined && sInfo.gpa !== null ? sInfo.gpa : 'N/A'} color="from-blue-500 to-blue-700" icon={HiAcademicCap} />
+        <StatCard title="Attendance" value={sInfo.attendance_rate !== undefined && sInfo.attendance_rate !== null ? `${sInfo.attendance_rate}%` : 'N/A'} color="from-emerald-500 to-emerald-700" icon={HiClipboardList} />
+        <StatCard title="Assignments" value={`${assignmentsCount} Pending`} color="from-violet-500 to-violet-700" icon={HiBookOpen} />
         <StatCard title="Upcoming Classes" value={`${schedule.length} Total`} color="from-rose-500 to-rose-700" icon={HiCalendar} />
       </div>
 
@@ -88,6 +106,7 @@ export function StudentDashboard() {
                   time={`${item.start_time.substring(0, 5)} - ${item.end_time.substring(0, 5)}`}
                   subject={item.subject_name} 
                   room={item.room || 'TBD'} 
+                  students={item.students}
                 />
               ))
             ) : (
@@ -99,9 +118,28 @@ export function StudentDashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Recent Grades</h3>
           <div className="space-y-3">
-            <GradeItem subject="Mathematics" grade="A" score="92%" />
-            <GradeItem subject="Physics" grade="B+" score="88%" />
-            <GradeItem subject="English" grade="A-" score="90%" />
+            {grades.length > 0 ? (
+              grades.slice(0, 5).map((item, index) => {
+                const getLetter = (score) => {
+                  const val = parseFloat(score);
+                  if (val >= 90) return 'A';
+                  if (val >= 80) return 'B';
+                  if (val >= 70) return 'C';
+                  if (val >= 60) return 'D';
+                  return 'F';
+                };
+                return (
+                  <GradeItem 
+                    key={index}
+                    subject={item.assignment_name} 
+                    grade={getLetter(item.score)} 
+                    score={`${item.score}%`} 
+                  />
+                );
+              })
+            ) : (
+              <p className="text-gray-500 text-sm py-4">No grades recorded yet.</p>
+            )}
           </div>
         </div>
       </div>
