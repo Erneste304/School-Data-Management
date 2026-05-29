@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Link Parent to Student - Rutabo SMS{% endblock %}
+
+{% block page_title %}Link Parent to Student{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Link Parent to Student(s)</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Parent *</label>
+            {{ form.parent }}
+            {% if form.parent.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.parent.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Students *</label>
+            <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                {{ form.students }}
+            </div>
+            {% if form.students.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.students.errors.0 }}</div>
+            {% endif %}
+            <small style="color: #64748b;">Select one or more students to link to this parent</small>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Relationship Type *</label>
+            {{ form.relationship_type }}
+            {% if form.relationship_type.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.relationship_type.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Permissions</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        {{ form.is_primary_guardian }}
+                        <span>Primary Guardian</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        {{ form.can_view_grades }}
+                        <span>Can View Grades</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        {{ form.can_view_attendance }}
+                        <span>Can View Attendance</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        {{ form.can_view_discipline }}
+                        <span>Can View Discipline</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        {{ form.can_view_fees }}
+                        <span>Can View Fees</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-link"></i> Link Parent to Students
+            </button>
+            <a href="{% url 'accounts:parent_list' %}" class="btn" style="background: #f1f5f9; color: #334155;">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

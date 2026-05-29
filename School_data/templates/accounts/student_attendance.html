@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}My Attendance - Rutabo SMS{% endblock %}
+
+{% block page_title %}My Attendance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 600;">Attendance Records</h2>
+        <div style="background: #f8fafc; padding: 1rem 1.5rem; border-radius: 0.5rem;">
+            <div style="font-size: 0.875rem; color: #64748b;">Attendance Rate</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">{{ student.get_attendance_rate }}%</div>
+        </div>
+    </div>
+
+    {% if attendance_records %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Date</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Class</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Status</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Lateness</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 1rem;">{{ record.date|date:"M d, Y" }}</td>
+                    <td style="padding: 1rem;">{{ record.enrollment.enrolled_class.name }}</td>
+                    <td style="padding: 1rem;">
+                        {% if record.status == 'Present' %}
+                            <span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Present</span>
+                        {% elif record.status == 'Absent' %}
+                            <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Absent</span>
+                        {% else %}
+                            <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Excused</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if record.is_late %}
+                            <span style="color: #f97316;">{{ record.lateness_minutes }} min late</span>
+                        {% else %}
+                            <span style="color: #64748b;">On time</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #64748b;">
+        <i class="fas fa-calendar-check" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+        <p style="font-size: 1.1rem;">No attendance records found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

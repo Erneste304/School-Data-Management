@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}My Subjects - Rutabo SMS{% endblock %}
+
+{% block page_title %}My Subjects{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">My Subjects</h2>
+
+    {% if subjects %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for subject in subjects %}
+        <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 600;">{{ subject.name }}</h3>
+                <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">{{ subject.code }}</span>
+            </div>
+            <div style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-chalkboard-teacher"></i> {{ subject.classschedule_set.count }} class(es)
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #64748b;">
+        <i class="fas fa-book" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+        <p style="font-size: 1.1rem;">No subjects assigned to you yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}My Assignments - Rutabo SMS{% endblock %}
+
+{% block page_title %}My Assignments{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 600;">Assignments</h2>
+        <div style="background: #f8fafc; padding: 1rem 1.5rem; border-radius: 0.5rem;">
+            <div style="font-size: 0.875rem; color: #64748b;">Pending</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #f97316;">{{ student.get_pending_assignments }}</div>
+        </div>
+    </div>
+
+    {% if assignments %}
+    <div style="display: grid; gap: 1rem;">
+        {% for assignment in assignments %}
+        {% with submission=submissions|get_item:assignment.pk %}
+        <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">{{ assignment.title }}</h3>
+                    <div style="color: #64748b; font-size: 0.875rem;">{{ assignment.subject.name }}</div>
+                </div>
+                {% if submission %}
+                    {% if submission.grade %}
+                        <span style="background: #dcfce7; color: #166534; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 600;">
+                            Grade: {{ submission.grade }}
+                        </span>
+                    {% else %}
+                        <span style="background: #dbeafe; color: #1e40af; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 500;">
+                            Submitted
+                        </span>
+                    {% endif %}
+                {% elif assignment.due_date < today %}
+                    <span style="background: #fee2e2; color: #991b1b; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 500;">
+                        Overdue
+                    </span>
+                {% else %}
+                    <span style="background: #fef3c7; color: #92400e; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 500;">
+                        Pending
+                    </span>
+                {% endif %}
+            </div>
+            <p style="color: #334155; margin-bottom: 1rem; line-height: 1.6;">{{ assignment.description }}</p>
+            <div style="display: flex; gap: 1rem; color: #64748b; font-size: 0.875rem;">
+                <span><i class="fas fa-calendar"></i> Due: {{ assignment.due_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #64748b;">
+        <i class="fas fa-tasks" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+        <p style="font-size: 1.1rem;">No assignments found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

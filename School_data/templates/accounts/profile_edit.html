@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Rutabo SMS{% endblock %}
+
+{% block page_title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Edit Profile</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">First Name *</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.first_name.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Last Name *</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.last_name.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Email *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.email.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Phone</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.phone.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Profile Photo</label>
+            {{ form.photo }}
+            {% if form.photo.errors %}
+                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">{{ form.photo.errors.0 }}</div>
+            {% endif %}
+            {% if user.photo %}
+                <div style="margin-top: 0.5rem;">
+                    <img src="{{ user.photo.url }}" alt="Current photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;">
+                </div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a href="{% url 'dashboard:home' %}" class="btn" style="background: #f1f5f9; color: #334155;">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

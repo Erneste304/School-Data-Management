@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Rutabo SMS{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem;">Welcome, {{ user.get_full_name|default:user.username }}!</h2>
+    <p style="color: #64748b; line-height: 1.6;">
+        You are logged in as <strong>{{ user.get_role_display }}</strong>. 
+        Your dashboard is being set up. Please contact the administrator if you need access to specific features.
+    </p>
+    
+    <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">
+            <i class="fas fa-user-edit"></i> Edit Profile
+        </a>
+        <a href="{% url 'accounts:password_change' %}" class="btn" style="background: #f1f5f9; color: #334155;">
+            <i class="fas fa-key"></i> Change Password
+        </a>
+        <a href="{% url 'schools:info' %}" class="btn" style="background: #f1f5f9; color: #334155;">
+            <i class="fas fa-info-circle"></i> View School Info
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="btn" style="background: #fee2e2; color: #991b1b;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -18,7 +18,99 @@ User = get_user_model()
 def seed():
     print("🌱 Seeding database...")
 
-    # 1. Create or get academic term
+    # 1. Create Admin user
+    admin_user, created = User.objects.get_or_create(
+        username='admin',
+        defaults={
+            'email': 'admin@rutabo.rw',
+            'first_name': 'System',
+            'last_name': 'Administrator',
+            'role': 'admin',
+            'is_active': True,
+            'is_staff': True,
+            'is_superuser': True
+        }
+    )
+    if created:
+        admin_user.set_password('admin123')
+        admin_user.save()
+        print("✅ Admin user created (username: admin, password: admin123)")
+    else:
+        print("ℹ️ Admin user already exists")
+
+    # 2. Create Head Teacher
+    head_teacher, created = User.objects.get_or_create(
+        username='head_teacher',
+        defaults={
+            'email': 'headteacher@rutabo.rw',
+            'first_name': 'John',
+            'last_name': 'Mugabo',
+            'role': 'head_teacher',
+            'is_active': True
+        }
+    )
+    if created:
+        head_teacher.set_password('teacher123')
+        head_teacher.save()
+        StaffProfile.objects.get_or_create(user=head_teacher, defaults={
+            'department': 'Administration',
+            'qualification': 'Masters in Education',
+            'date_joined': date(2020, 1, 15)
+        })
+        print("✅ Head Teacher created (username: head_teacher, password: teacher123)")
+    else:
+        print("ℹ️ Head Teacher already exists")
+
+    # 3. Create DOS (Director of Studies)
+    dos_user, created = User.objects.get_or_create(
+        username='dos',
+        defaults={
+            'email': 'dos@rutabo.rw',
+            'first_name': 'Mary',
+            'last_name': 'Kamanzi',
+            'role': 'dos',
+            'is_active': True
+        }
+    )
+    if created:
+        dos_user.set_password('dos123')
+        dos_user.save()
+        StaffProfile.objects.get_or_create(user=dos_user, defaults={
+            'department': 'Academics',
+            'qualification': 'Masters in Curriculum',
+            'date_joined': date(2020, 2, 1)
+        })
+        print("✅ DOS created (username: dos, password: dos123)")
+    else:
+        print("ℹ️ DOS already exists")
+
+    # 4. Create Teacher
+    teacher_user, created = User.objects.get_or_create(
+        username='teacher1',
+        defaults={
+            'email': 'teacher1@rutabo.rw',
+            'first_name': 'Peter',
+            'last_name': 'Niyonzima',
+            'role': 'teacher',
+            'is_active': True
+        }
+    )
+    if created:
+        teacher_user.set_password('teacher123')
+        teacher_user.save()
+        StaffProfile.objects.get_or_create(user=teacher_user, defaults={
+            'department': 'Science',
+            'qualification': 'Bachelors in Physics',
+            'date_joined': date(2021, 9, 1)
+        })
+        TeacherProfile.objects.get_or_create(user=teacher_user, defaults={
+            'hire_date': date(2021, 9, 1)
+        })
+        print("✅ Teacher created (username: teacher1, password: teacher123)")
+    else:
+        print("ℹ️ Teacher already exists")
+
+    # 5. Create or get academic term
     term, _ = AcademicTerm.objects.get_or_create(
         name="Term 1 2026",
         defaults={
@@ -27,10 +119,8 @@ def seed():
         }
     )
 
-    # 2. Get active staff users
-    admin_user = User.objects.filter(role='admin').first()
-    teacher_user = User.objects.filter(role='head_teacher').first() or User.objects.first()
-    animateur_user = User.objects.filter(role='animateur').first() or User.objects.first()
+    # 6. Get active staff users
+    animateur_user = User.objects.filter(role='animateur').first()
 
     # Create Class
     class_10a, _ = Class.objects.get_or_create(

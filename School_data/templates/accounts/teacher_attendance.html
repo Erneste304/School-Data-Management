@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Attendance - Rutabo SMS{% endblock %}
+
+{% block page_title %}Take Attendance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 600;">Take Attendance</h2>
+        <div style="color: #64748b;">
+            <i class="fas fa-calendar"></i> {{ today|date:"l, F d, Y" }}
+        </div>
+    </div>
+
+    {% if students %}
+    <form method="post">
+        {% csrf_token %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Student</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Class</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Status</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Late?</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Minutes Late</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 500;">{{ student.user.get_full_name }}</div>
+                            <div style="font-size: 0.85rem; color: #64748b;">{{ student.student_id }}</div>
+                        </td>
+                        <td style="padding: 1rem;">{{ student.current_class.name|default:"-" }}</td>
+                        <td style="padding: 1rem;">
+                            <select name="status_{{ student.pk }}" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Excused">Excused</option>
+                            </select>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <input type="checkbox" name="late_{{ student.pk }}" style="width: 1.25rem; height: 1.25rem;">
+                        </td>
+                        <td style="padding: 1rem;">
+                            <input type="number" name="lateness_{{ student.pk }}" min="0" placeholder="0" style="width: 80px; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Attendance
+            </button>
+        </div>
+    </form>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #64748b;">
+        <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+        <p style="font-size: 1.1rem;">No students found in your classes.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
