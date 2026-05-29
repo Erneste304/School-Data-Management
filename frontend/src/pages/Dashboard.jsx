@@ -7,7 +7,7 @@ import {
 import {
   HiHome, HiUsers, HiAcademicCap, HiCurrencyDollar,
   HiClipboardList, HiChat, HiVideoCamera, HiShieldCheck,
-  HiCalendar, HiLogout, HiBookOpen, HiChartBar
+  HiCalendar, HiLogout, HiBookOpen, HiChartBar, HiFolderOpen, HiUserGroup
 } from 'react-icons/hi'
 import { StudentDashboard, TeacherDashboard, ParentDashboard, AdminDashboard } from '../components/RoleBasedDashboard'
 import StudentManagement from '../components/StudentManagement'
@@ -24,6 +24,9 @@ import MyClassesDashboard from '../components/MyClassesDashboard'
 import MyChildrenDashboard from '../components/MyChildrenDashboard'
 import ChatDashboard from '../components/ChatDashboard'
 import LivestreamPortal from '../components/LivestreamPortal'
+import NotificationBell from '../components/NotificationBell'
+import DocumentLibrary from '../components/DocumentLibrary'
+import AlumniDirectory from '../components/AlumniDirectory'
 
 const NAV_ITEMS = {
   admin: [
@@ -35,6 +38,8 @@ const NAV_ITEMS = {
     { to: '/dashboard/activities', label: 'Activities', icon: HiCalendar },
     { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
     { to: '/dashboard/livestream', label: 'Live Stream', icon: HiVideoCamera },
+    { to: '/dashboard/documents', label: 'Documents', icon: HiFolderOpen },
+    { to: '/dashboard/alumni', label: 'Alumni', icon: HiUserGroup },
     { to: '/dashboard/audit', label: 'Audit Logs', icon: HiShieldCheck },
   ],
   teacher: [
@@ -44,6 +49,8 @@ const NAV_ITEMS = {
     { to: '/dashboard/grades', label: 'Grades', icon: HiChartBar },
     { to: '/dashboard/attendance', label: 'Attendance', icon: HiClipboardList },
     { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+    { to: '/dashboard/documents', label: 'Documents', icon: HiFolderOpen },
+    { to: '/dashboard/alumni', label: 'Alumni', icon: HiUserGroup },
   ],
   student: [
     { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
@@ -51,6 +58,8 @@ const NAV_ITEMS = {
     { to: '/dashboard/grades', label: 'Grades', icon: HiChartBar },
     { to: '/dashboard/assignments', label: 'Assignments', icon: HiBookOpen },
     { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+    { to: '/dashboard/documents', label: 'Documents', icon: HiFolderOpen },
+    { to: '/dashboard/alumni', label: 'Alumni', icon: HiUserGroup },
   ],
   parent: [
     { to: '/dashboard', label: 'Overview', icon: HiHome, exact: true },
@@ -58,6 +67,7 @@ const NAV_ITEMS = {
     { to: '/dashboard/grades', label: 'Grades', icon: HiChartBar },
     { to: '/dashboard/fees', label: 'Fees', icon: HiCurrencyDollar },
     { to: '/dashboard/chat', label: 'Chat', icon: HiChat },
+    { to: '/dashboard/documents', label: 'Documents', icon: HiFolderOpen },
   ],
 }
 
@@ -136,6 +146,7 @@ export default function Dashboard() {
         {/* Top navbar */}
         <Navbar className="border-b border-gray-200 dark:border-gray-700 !rounded-none px-4">
           <div className="flex items-center gap-3 ml-auto">
+            <NotificationBell />
             <DarkThemeToggle />
             <Dropdown
               arrowIcon={false}
@@ -172,6 +183,8 @@ export default function Dashboard() {
             <Route path="children" element={<MyChildrenDashboard />} />
             <Route path="chat" element={<ChatDashboard />} />
             <Route path="livestream" element={<LivestreamPortal />} />
+            <Route path="documents" element={<DocumentLibrary />} />
+            <Route path="alumni" element={<AlumniDirectory />} />
             <Route path="*" element={<ComingSoon />} />
           </Routes>
         </main>
