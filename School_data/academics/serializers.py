@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import (
     Class, Student, Subject, Enrollment, Grade, Attendance,
     Exam, ExamResult, TeacherProfile, Assignment, AssignmentSubmission,
-    AcademicTerm, ClassSchedule, Curriculum
+    AcademicTerm, ClassSchedule, Curriculum, StudentEnrollmentRequest,
+    LessonPlan, Quiz, Question, QuestionOption, QuizResult
 )
 
 
@@ -136,29 +137,52 @@ class ExamResultSerializer(serializers.ModelSerializer):
 
 class AssignmentSerializer(serializers.ModelSerializer):
     subject_name = serializers.SerializerMethodField()
+    is_past_deadline = serializers.SerializerMethodField()
+    submission_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
-        fields = ['id', 'subject', 'title', 'description', 'due_date', 'subject_name']
+        fields = [
+            'id', 'subject', 'title', 'description', 'due_date', 'max_points',
+            'allow_late_submission', 'created_at', 'updated_at',
+            'subject_name', 'is_past_deadline', 'submission_count'
+        ]
 
     def get_subject_name(self, obj):
         return obj.subject.name
+
+    def get_is_past_deadline(self, obj):
+        return obj.is_past_deadline()
+
+    def get_submission_count(self, obj):
+        return obj.submissions.count()
 
 
 class AssignmentSubmissionSerializer(serializers.ModelSerializer):
     student_name = serializers.SerializerMethodField()
     assignment_title = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
 
     class Meta:
         model = AssignmentSubmission
-        fields = ['id', 'assignment', 'enrollment', 'submission_date',
-                  'content', 'grade', 'student_name', 'assignment_title']
+        fields = [
+            'id', 'assignment', 'enrollment', 'submission_date', 'updated_at',
+            'content', 'file', 'file_url', 'grade', 'is_late', 'feedback',
+            'student_name', 'assignment_title', 'can_edit'
+        ]
 
     def get_student_name(self, obj):
         return obj.enrollment.student.user.get_full_name()
 
     def get_assignment_title(self, obj):
         return obj.assignment.title
+
+    def get_can_edit(self, obj):
+        return obj.can_edit()
+
+    def get_file_url(self, obj):
+        return obj.file.url if obj.file else None
 
 
 class AcademicTermSerializer(serializers.ModelSerializer):
@@ -210,3 +234,144 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_subjects = serializers.IntegerField()
     active_enrollments = serializers.IntegerField()
     attendance_today = serializers.DictField(child=serializers.IntegerField())
+
+
+class StudentEnrollmentRequestSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    student_id = serializers.SerializerMethodField()
+    class_name = serializers.SerializerMethodField()
+    reviewer_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StudentEnrollmentRequest
+        fields = [
+            'student', 'student_name', 'student_id', 'requested_class', 'class_name',
+            'status', 'academic_year', 'additional_info', 'requested_at',
+            'reviewed_by', 'reviewer_name', 'reviewed_at', 'rejection_reason'
+        ]
+        read_only_fields = ['requested_at', 'reviewed_at', 'reviewed_by']
+
+    def get_student_name(self, obj):
+        return obj.student.user.get_full_name()
+
+    def get_student_id(self, obj):
+        return obj.student.student_id
+
+    def get_class_name(self, obj):
+        return obj.requested_class.name if obj.requested_class else None
+
+    def get_reviewer_name(self, obj):
+        return obj.reviewed_by.get_full_name() if obj.reviewed_by else None
+
+
+class LessonPlanSerializer(serializers.ModelSerializer):
+    teacher_name = serializers.SerializerMethodField()
+    subject_name = serializers.SerializerMethodField()
+    class_name = serializers.SerializerMethodField()
+    submitted_to_name = serializers.SerializerMethodField()
+    reviewed_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LessonPlan
+        fields = [
+            'id', 'teacher', 'teacher_name', 'subject', 'subject_name',
+            'class_assigned', 'class_name', 'title', 'topic', 'objectives',
+            'materials_needed', 'lesson_content', 'homework', 'assessment_method',
+            'scheduled_date', 'duration_minutes', 'status', 'submitted_to',
+            'submitted_to_name', 'submitted_at', 'reviewed_by', 'reviewed_by_name',
+            'reviewed_at', 'feedback', 'created_at', 'updated_at'
+        ]
+
+    def get_teacher_name(self, obj):
+        return obj.teacher.user.get_full_name()
+
+    def get_subject_name(self, obj):
+        return obj.subject.name
+
+    def get_class_name(self, obj):
+        return obj.class_assigned.name if obj.class_assigned else None
+
+    def get_submitted_to_name(self, obj):
+        return obj.submitted_to.get_full_name() if obj.submitted_to else None
+
+    def get_reviewed_by_name(self, obj):
+        return obj.reviewed_by.get_full_name() if obj.reviewed_by else None
+
+
+class QuestionOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionOption
+        fields = ['id', 'option_text', 'is_correct', 'order']
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    options = QuestionOptionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Question
+        fields = ['id', 'question_text', 'question_type', 'marks', 'order', 'options']
+
+
+class QuizSerializer(serializers.ModelSerializer):
+    teacher_name = serializers.SerializerMethodField()
+    subject_name = serializers.SerializerMethodField()
+    class_name = serializers.SerializerMethodField()
+    submitted_to_name = serializers.SerializerMethodField()
+    reviewed_by_name = serializers.SerializerMethodField()
+    questions = QuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Quiz
+        fields = [
+            'id', 'teacher', 'teacher_name', 'subject', 'subject_name',
+            'class_assigned', 'class_name', 'title', 'description', 'instructions',
+            'duration_minutes', 'total_marks', 'passing_marks', 'scheduled_date',
+            'status', 'submitted_to', 'submitted_to_name', 'submitted_at',
+            'reviewed_by', 'reviewed_by_name', 'reviewed_at', 'feedback',
+            'created_at', 'updated_at', 'questions'
+        ]
+
+    def get_teacher_name(self, obj):
+        return obj.teacher.user.get_full_name()
+
+    def get_subject_name(self, obj):
+        return obj.subject.name
+
+    def get_class_name(self, obj):
+        return obj.class_assigned.name if obj.class_assigned else None
+
+    def get_submitted_to_name(self, obj):
+        return obj.submitted_to.get_full_name() if obj.submitted_to else None
+
+    def get_reviewed_by_name(self, obj):
+        return obj.reviewed_by.get_full_name() if obj.reviewed_by else None
+
+
+class QuizResultSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    quiz_title = serializers.SerializerMethodField()
+    submitted_to_name = serializers.SerializerMethodField()
+    reviewed_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = QuizResult
+        fields = [
+            'id', 'quiz', 'quiz_title', 'student', 'student_name', 'enrollment',
+            'score', 'total_marks', 'percentage', 'passed', 'answers',
+            'time_taken_minutes', 'submitted_at', 'status', 'submitted_to',
+            'submitted_to_name', 'submitted_at_review', 'reviewed_by', 'reviewed_by_name',
+            'reviewed_at', 'feedback'
+        ]
+
+    def get_student_name(self, obj):
+        return obj.student.user.get_full_name()
+
+    def get_quiz_title(self, obj):
+        return obj.quiz.title
+
+    def get_submitted_to_name(self, obj):
+        return obj.submitted_to.get_full_name() if obj.submitted_to else None
+
+    def get_reviewed_by_name(self, obj):
+        return obj.reviewed_by.get_full_name() if obj.reviewed_by else None
+

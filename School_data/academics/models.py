@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.db.models import Avg, Count, Q
+from django.utils import timezone
 from accounts.models import CustomUser
 from schools.models import LEVEL_CHOICES
 
@@ -53,6 +54,10 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} ({self.student_id})"
+
+    @property
+    def full_name(self):
+        return self.user.get_full_name()
 
     def calculate_gpa(self):
         """
@@ -143,15 +148,73 @@ class Subject(models.Model):
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     enrolled_class = models.ForeignKey(Class, on_delete=models.CASCADE)
-    academic_year = models.CharField(max_length=9, help_text="e.g., '2024-2025'")
+    academic_year = models.CharField(max_length=20, default='2025-2026')
     enrollment_date = models.DateField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('student', 'enrolled_class', 'academic_year')
+        unique_together = ['student', 'enrolled_class', 'academic_year']
 
     def __str__(self):
-        return f"{self.student} enrolled in {self.enrolled_class} for {self.academic_year}"
+        return f"{self.student} - {self.enrolled_class} ({self.academic_year})"
+
+
+class StudentEnrollmentRequest(models.Model):
+    """Request from students to be enrolled in a class"""
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
     
+    student = models.OneToOneField(Student, on_delete=models.CASCADE, primary_key=True)
+    requested_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    academic_year = models.CharField(max_length=20, default='2025-2026')
+    additional_info = models.TextField(blank=True, help_text='Additional information from student')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_requests'
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
+    
+    class Meta:
+        verbose_name = "Student Enrollment Request"
+        verbose_name_plural = "Student Enrollment Requests"
+        ordering = ['-requested_at']
+    
+    def approve(self, reviewer):
+        """Approve the enrollment request and create enrollment"""
+        if self.requested_class:
+            enrollment, created = Enrollment.objects.get_or_create(
+                student=self.student,
+                enrolled_class=self.requested_class,
+                academic_year=self.academic_year
+            )
+            self.student.current_class = self.requested_class
+            self.student.save()
+        
+        self.status = 'approved'
+        self.reviewed_by = reviewer
+        self.reviewed_at = timezone.now()
+        self.save()
+    
+    def reject(self, reviewer, reason=''):
+        """Reject the enrollment request"""
+        self.status = 'rejected'
+        self.reviewed_by = reviewer
+        self.reviewed_at = timezone.now()
+        self.rejection_reason = reason
+        self.save()
+    
+    def __str__(self):
+        return f"{self.student} - {self.requested_class} ({self.get_status_display()})"
+
+
 class Grade(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     score = models.DecimalField(max_digits=5, decimal_places=2)
@@ -207,31 +270,62 @@ class TeacherProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()}'s Profile"
+
+    @property
+    def full_name(self):
+        return self.user.get_full_name()
     class Meta:
         verbose_name_plural = "Teacher Profiles"  
 class Assignment(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    due_date = models.DateField()
+    due_date = models.DateTimeField()
+    max_points = models.IntegerField(default=100)
+    allow_late_submission = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.title} for {self.subject}"
+    
+    def is_past_deadline(self):
+        from django.utils import timezone
+        return timezone.now() > self.due_date
+    
     class Meta:
         verbose_name_plural = "Assignments"
+        ordering = ['-due_date']
+
 class AssignmentSubmission(models.Model):
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-    submission_date = models.DateField(auto_now_add=True)
-    content = models.TextField()
+    submission_date = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    content = models.TextField(blank=True)
+    file = models.FileField(upload_to='assignment_submissions/', blank=True, null=True)
     grade = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    is_late = models.BooleanField(default=False)
+    feedback = models.TextField(blank=True)
 
     class Meta:
         unique_together = ('assignment', 'enrollment')
         verbose_name_plural = "Assignment Submissions"
+        ordering = ['-submission_date']
 
     def __str__(self):
         return f"{self.enrollment} submission for {self.assignment}"
+    
+    def can_edit(self):
+        """Check if submission can still be edited (before deadline)"""
+        return not self.assignment.is_past_deadline() and not self.is_late
+    
+    def save(self, *args, **kwargs):
+        # Check if submission is late
+        if not self.pk:  # New submission
+            from django.utils import timezone
+            self.is_late = timezone.now() > self.assignment.due_date
+        super().save(*args, **kwargs)
 class AcademicTerm(models.Model):
     name = models.CharField(max_length=100)
     start_date = models.DateField()
@@ -241,6 +335,169 @@ class AcademicTerm(models.Model):
         return f"{self.name} ({self.start_date} to {self.end_date})"
     class Meta:
         verbose_name_plural = "Academic Terms"
+
+class LessonPlan(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted for Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('archived', 'Archived'),
+    )
+
+    teacher = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, related_name='lesson_plans')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lesson_plans')
+    class_assigned = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True, blank=True, related_name='lesson_plans')
+    
+    title = models.CharField(max_length=200)
+    topic = models.CharField(max_length=200)
+    objectives = models.TextField(help_text="Learning objectives for this lesson")
+    materials_needed = models.TextField(blank=True, help_text="Materials and resources needed")
+    lesson_content = models.TextField(help_text="Detailed lesson content and activities")
+    homework = models.TextField(blank=True, help_text="Homework assignment")
+    assessment_method = models.TextField(blank=True, help_text="How students will be assessed")
+    
+    scheduled_date = models.DateField()
+    duration_minutes = models.IntegerField(default=60, help_text="Lesson duration in minutes")
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    submitted_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, 
+                                    blank=True, related_name='received_lesson_plans',
+                                    limit_choices_to={'role__in': ['dos', 'head_teacher', 'admin']})
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, 
+                                   blank=True, related_name='reviewed_lesson_plans')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    feedback = models.TextField(blank=True, help_text="Feedback from reviewer")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Lesson Plans"
+        ordering = ['-scheduled_date']
+
+    def __str__(self):
+        return f"{self.title} - {self.subject.name} ({self.scheduled_date})"
+
+class Quiz(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted for Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('published', 'Published'),
+        ('archived', 'Archived'),
+    )
+
+    teacher = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, related_name='quizzes')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='quizzes')
+    class_assigned = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True, blank=True, related_name='quizzes')
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    instructions = models.TextField(blank=True)
+    duration_minutes = models.IntegerField(default=60)
+    total_marks = models.IntegerField(default=100)
+    passing_marks = models.IntegerField(default=50)
+    
+    scheduled_date = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    
+    submitted_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, 
+                                    blank=True, related_name='received_quizzes',
+                                    limit_choices_to={'role__in': ['dos', 'head_teacher', 'admin']})
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, 
+                                   blank=True, related_name='reviewed_quizzes')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    feedback = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Quizzes"
+        ordering = ['-scheduled_date']
+
+    def __str__(self):
+        return f"{self.title} - {self.subject.name}"
+
+class Question(models.Model):
+    QUESTION_TYPES = (
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+        ('short_answer', 'Short Answer'),
+        ('essay', 'Essay'),
+    )
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    marks = models.IntegerField(default=1)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.question_text[:50]}..."
+
+class QuestionOption(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
+    option_text = models.CharField(max_length=500)
+    is_correct = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.option_text}"
+
+class QuizResult(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted for Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_results')
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name='quiz_results')
+    
+    score = models.FloatField()
+    total_marks = models.FloatField()
+    percentage = models.FloatField()
+    passed = models.BooleanField(default=False)
+    
+    answers = models.JSONField(default=dict, blank=True)
+    time_taken_minutes = models.IntegerField(default=0)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    submitted_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, 
+                                    blank=True, related_name='received_quiz_results',
+                                    limit_choices_to={'role__in': ['dos', 'head_teacher', 'admin']})
+    submitted_at_review = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, 
+                                   blank=True, related_name='reviewed_quiz_results')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    feedback = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name_plural = "Quiz Results"
+        ordering = ['-submitted_at']
+        unique_together = ['quiz', 'student']
+
+    def save(self, *args, **kwargs):
+        self.percentage = (self.score / self.total_marks) * 100 if self.total_marks > 0 else 0
+        self.passed = self.percentage >= self.quiz.passing_marks
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.student.user.get_full_name()} - {self.quiz.title}: {self.score}/{self.total_marks}"
 
 class ClassSchedule(models.Model):
     class_assigned = models.ForeignKey(Class, on_delete=models.CASCADE)

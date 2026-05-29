@@ -3,17 +3,16 @@ from django.shortcuts import redirect
 from rest_framework.permissions import BasePermission
 
 
-# ── Django view mixins (for template views) ───────────────────────────────────
-
 class RoleRequiredMixin(UserPassesTestMixin):
-    """Base mixin — set allowed_roles on the view class."""
+    """Base mixin — set allowed_roles on the view class. Admin always has full access."""
     allowed_roles = []
 
     def test_func(self):
         user = self.request.user
-        return user.is_authenticated and (
-            user.role in self.allowed_roles or user.is_admin
-        )
+        # Admin has unrestricted access to everything
+        if user.is_admin:
+            return True
+        return user.is_authenticated and user.role in self.allowed_roles
 
     def handle_no_permission(self):
         return redirect('accounts:login')
@@ -42,8 +41,6 @@ class AccountantRequiredMixin(RoleRequiredMixin):
 class AnimateurRequiredMixin(RoleRequiredMixin):
     allowed_roles = ['admin', 'head_teacher', 'animateur', 'animatrice']
 
-
-# ── DRF permissions (for REST API views) ─────────────────────────────────────
 
 class IsAdminRole(BasePermission):
     def has_permission(self, request, view):

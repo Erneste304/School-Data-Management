@@ -3,12 +3,10 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.permissions import RoleRequiredMixin
 
-# --- Shared Base Mixins ---
 class BasePortalView(LoginRequiredMixin, TemplateView):
     """Base class requiring login."""
     pass
 
-# --- 1. Admin/Head Portal ---
 class AdminAcademicsDashboardView(RoleRequiredMixin, BasePortalView):
     """Allows Admin/Head/DOS to manage all academic data."""
     allowed_roles = ['admin', 'head_teacher', 'dos']
@@ -20,7 +18,6 @@ class AdminAcademicsDashboardView(RoleRequiredMixin, BasePortalView):
         context['role_desc'] = 'Academic Manager'
         return context
 
-# --- 2. Teacher Portal ---
 class TeacherPortalView(RoleRequiredMixin, BasePortalView):
     """Teacher's view for managing their subjects and students."""
     allowed_roles = ['teacher', 'animateur', 'animatrice']
@@ -46,7 +43,6 @@ class TeacherPortalView(RoleRequiredMixin, BasePortalView):
         context['role_desc'] = self.request.user.profile.get_role_display()
         return context
 
-# --- 3. Student Portal ---
 class StudentPortalView(RoleRequiredMixin, BasePortalView):
     """Student's view of their own data."""
     allowed_roles = ['student']
@@ -58,7 +54,6 @@ class StudentPortalView(RoleRequiredMixin, BasePortalView):
         context['role_desc'] = 'Student'
         return context
 
-# --- 4. Parent Portal (Crucial for Parent Role) ---
 class ParentPortalView(RoleRequiredMixin, BasePortalView):
     allowed_roles = ['parent']
     template_name = 'academics/parent_portal.html'

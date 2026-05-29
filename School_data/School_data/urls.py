@@ -27,6 +27,8 @@ urlpatterns = [
     path('api/notifications/', include('notifications.api_urls', namespace='notifications_api')),
     path('api/documents/', include('documents.api_urls', namespace='documents_api')),
     path('api/alumni/', include('alumni.api_urls', namespace='alumni_api')),
+    path('api/chat/', include('chat.api_urls', namespace='chat_api')),
+    path('api/livestream/', include('livestream.api_urls', namespace='livestream_api')),
     path('', RedirectView.as_view(url='/accounts/login/'), name='home_root'),
 ]
 
